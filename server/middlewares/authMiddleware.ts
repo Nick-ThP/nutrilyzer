@@ -4,8 +4,8 @@ import { ExtendedRequest } from '../utils/types'
 
 export const authMiddleware = asyncHandler(async (req: ExtendedRequest, res, next) => {
 	// Initialize variables
-	let token
-	let authHeader = req.headers.authorization as string
+	let token: string
+	let authHeader = req.headers.authorization
 
 	// Check if there's something wrong with the request header
 	if (!authHeader || !authHeader.startsWith('Bearer')) {

@@ -1,5 +1,5 @@
 import express from 'express'
-import { getMovementList, updateMovementList } from '../controllers/movementController'
+import { getMovementList, updateMovementList } from '../controllers/foodStuffController'
 import { authMiddleware } from '../middlewares/authMiddleware'
 
 export const movementRouter = express.Router()

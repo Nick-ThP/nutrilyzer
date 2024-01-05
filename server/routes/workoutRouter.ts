@@ -1,5 +1,5 @@
 import express from 'express'
-import { createWorkout, deleteWorkout, getWorkout, getWorkouts, updateWorkout } from '../controllers/workoutController'
+import { createWorkout, deleteWorkout, getWorkout, getWorkouts, updateWorkout } from '../controllers/mealController'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { calorieMiddleware } from '../middlewares/calorieMiddleware'
 
