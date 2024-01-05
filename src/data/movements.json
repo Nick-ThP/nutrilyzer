@@ -1,0 +1,17 @@
+[
+	{
+		"name": "Bench Press",
+		"area": ["Chest"],
+		"targetedMuscle": ["Pectoralis Muscles", "Front Deltoid", "Triceps Brachii"]
+	},
+	{
+		"name": "Squat",
+		"area": ["Legs"],
+		"targetedMuscle": ["Quadriceps Femoris", "Gluteus Muscles", "Hamstring Muscles"]
+	},
+	{
+		"name": "Deadlift",
+		"area": ["Back", "Legs"],
+		"targetedMuscle": ["Trapezius", "Latissimus Dorsi", "Rear Deltoid"]
+	}
+]

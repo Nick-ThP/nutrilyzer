@@ -1,0 +1,65 @@
+{
+	"client": "Thunder Client",
+	"collectionName": "workout-archive/users",
+	"dateExported": "2023-11-03T22:54:20.929Z",
+	"version": "1.1",
+	"folders": [],
+	"requests": [
+		{
+			"_id": "96503044-6b70-45b9-8f42-9bd6a6f16fb2",
+			"colId": "1eedf2be-c2c6-4c42-af92-b1f3d72bb9ad",
+			"containerId": "",
+			"name": "Register with username, email and password",
+			"url": "localhost:3050/api/users/register",
+			"method": "POST",
+			"sortNum": 20000,
+			"created": "2023-11-02T18:55:55.612Z",
+			"modified": "2023-11-02T20:25:05.795Z",
+			"headers": [],
+			"params": [],
+			"body": {
+				"type": "json",
+				"raw": "{\n  \"username\": \"test_name\",\n  \"email\": \"test_mail\",\n  \"password\": \"test_pass\"\n}",
+				"form": []
+			},
+			"tests": []
+		},
+		{
+			"_id": "ba7961a4-a679-4177-9f91-06a76670348d",
+			"colId": "1eedf2be-c2c6-4c42-af92-b1f3d72bb9ad",
+			"containerId": "",
+			"name": "Log in with email and password",
+			"url": "localhost:3050/api/users/login",
+			"method": "POST",
+			"sortNum": 30000,
+			"created": "2023-11-02T18:57:12.407Z",
+			"modified": "2023-11-02T19:36:32.283Z",
+			"headers": [],
+			"params": [],
+			"body": {
+				"type": "json",
+				"raw": "{\n  \"email\": \"test_mail\",\n  \"password\": \"test_pass\"\n}",
+				"form": []
+			},
+			"tests": []
+		},
+		{
+			"_id": "e37d2301-2fa1-4062-bc8c-1d3fe179db36",
+			"colId": "1eedf2be-c2c6-4c42-af92-b1f3d72bb9ad",
+			"containerId": "",
+			"name": "Get current user",
+			"url": "localhost:3050/api/users/current",
+			"method": "GET",
+			"sortNum": 40000,
+			"created": "2023-11-02T18:55:41.335Z",
+			"modified": "2023-11-02T20:25:22.447Z",
+			"headers": [],
+			"params": [],
+			"auth": {
+				"type": "bearer",
+				"bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiNCIsImlkIjoiNjU0NDA1YTE4NDQ0OGQ0ZTQ0MWYzZDc3In0sImlhdCI6MTY5ODk1NjcwNSwiZXhwIjoxNzAxNTQ4NzA1fQ.va4_jJTAqR3OM-OtNo3Iqb_eFmFfgUUZQiq8i-yT-vk"
+			},
+			"tests": []
+		}
+	]
+}

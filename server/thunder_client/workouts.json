@@ -1,0 +1,109 @@
+{
+	"client": "Thunder Client",
+	"collectionName": "workout-archive/workouts",
+	"dateExported": "2023-11-03T22:53:53.329Z",
+	"version": "1.1",
+	"folders": [],
+	"requests": [
+		{
+			"_id": "8ae0388b-8b8d-4c51-b5b2-b80450cc7c07",
+			"colId": "af1e951a-58a9-490a-a8d2-65beb5c66110",
+			"containerId": "",
+			"name": "Get all workouts",
+			"url": "localhost:3050/api/workouts/",
+			"method": "GET",
+			"sortNum": 10000,
+			"created": "2023-11-02T19:31:24.244Z",
+			"modified": "2023-11-03T22:45:47.739Z",
+			"headers": [],
+			"params": [],
+			"auth": {
+				"type": "bearer",
+				"bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiMyIsImlkIjoiNjU0M2ZhNGI1NTk4Y2Q4MGMzM2EwMWYwIn0sImlhdCI6MTY5OTA1MDUzNSwiZXhwIjoxNzAxNjQyNTM1fQ.H83y-EfPbWd6KNP23ARlpCpg20zWGfPQA9c0zqvXwUw"
+			},
+			"tests": []
+		},
+		{
+			"_id": "0c0c7b0d-9781-4607-ba2a-58a17fe3738f",
+			"colId": "af1e951a-58a9-490a-a8d2-65beb5c66110",
+			"containerId": "",
+			"name": "Get specific workout",
+			"url": "localhost:3050/api/workouts/654574837fe2cce87c4f789e",
+			"method": "GET",
+			"sortNum": 15000,
+			"created": "2023-11-03T22:45:10.743Z",
+			"modified": "2023-11-03T22:45:10.743Z",
+			"headers": [],
+			"params": [],
+			"auth": {
+				"type": "bearer",
+				"bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiMyIsImlkIjoiNjU0M2ZhNGI1NTk4Y2Q4MGMzM2EwMWYwIn0sImlhdCI6MTY5OTA1MDUzNSwiZXhwIjoxNzAxNjQyNTM1fQ.H83y-EfPbWd6KNP23ARlpCpg20zWGfPQA9c0zqvXwUw"
+			},
+			"tests": []
+		},
+		{
+			"_id": "cf24daff-c675-4877-b02f-f87aaceab0cb",
+			"colId": "af1e951a-58a9-490a-a8d2-65beb5c66110",
+			"containerId": "",
+			"name": "Create new workout",
+			"url": "localhost:3050/api/workouts/",
+			"method": "POST",
+			"sortNum": 20000,
+			"created": "2023-11-03T22:30:58.723Z",
+			"modified": "2023-11-03T22:30:58.723Z",
+			"headers": [],
+			"params": [],
+			"body": {
+				"type": "json",
+				"raw": "{\n  \"calories\": 5836\n}",
+				"form": []
+			},
+			"auth": {
+				"type": "bearer",
+				"bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiMyIsImlkIjoiNjU0M2ZhNGI1NTk4Y2Q4MGMzM2EwMWYwIn0sImlhdCI6MTY5OTA1MDUzNSwiZXhwIjoxNzAxNjQyNTM1fQ.H83y-EfPbWd6KNP23ARlpCpg20zWGfPQA9c0zqvXwUw"
+			},
+			"tests": []
+		},
+		{
+			"_id": "9a6957cb-5927-4956-8f63-d4dcec2f5401",
+			"colId": "af1e951a-58a9-490a-a8d2-65beb5c66110",
+			"containerId": "",
+			"name": "Edit existing workout",
+			"url": "localhost:3050/api/workouts/654574837fe2cce87c4f789e",
+			"method": "PUT",
+			"sortNum": 30000,
+			"created": "2023-11-03T22:48:29.908Z",
+			"modified": "2023-11-03T22:48:29.908Z",
+			"headers": [],
+			"params": [],
+			"body": {
+				"type": "json",
+				"raw": "{\n  \"calories\": 3436\n}",
+				"form": []
+			},
+			"auth": {
+				"type": "bearer",
+				"bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiMyIsImlkIjoiNjU0M2ZhNGI1NTk4Y2Q4MGMzM2EwMWYwIn0sImlhdCI6MTY5OTA1MDUzNSwiZXhwIjoxNzAxNjQyNTM1fQ.H83y-EfPbWd6KNP23ARlpCpg20zWGfPQA9c0zqvXwUw"
+			},
+			"tests": []
+		},
+		{
+			"_id": "d8eb249a-63c3-453a-a5af-c95cbc37cf6b",
+			"colId": "af1e951a-58a9-490a-a8d2-65beb5c66110",
+			"containerId": "",
+			"name": "Delete existing workout",
+			"url": "localhost:3050/api/workouts/654574837fe2cce87c4f789e",
+			"method": "DELETE",
+			"sortNum": 40000,
+			"created": "2023-11-03T22:49:29.902Z",
+			"modified": "2023-11-03T22:49:29.902Z",
+			"headers": [],
+			"params": [],
+			"auth": {
+				"type": "bearer",
+				"bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiMyIsImlkIjoiNjU0M2ZhNGI1NTk4Y2Q4MGMzM2EwMWYwIn0sImlhdCI6MTY5OTA1MDUzNSwiZXhwIjoxNzAxNjQyNTM1fQ.H83y-EfPbWd6KNP23ARlpCpg20zWGfPQA9c0zqvXwUw"
+			},
+			"tests": []
+		}
+	]
+}
