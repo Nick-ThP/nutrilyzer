@@ -9,8 +9,9 @@ import { errorMiddleware } from './middlewares/errorMiddleware'
 import { movementRouter } from './routes/movementRouter'
 import { userRouter } from './routes/userRouter'
 import { workoutRouter } from './routes/workoutRouter'
-import { connectDb } from './utils/db'
 import { corsOptions } from './utils/cors'
+import { connectDb } from './utils/db'
+import { limitOptions } from './utils/rateLimit'
 
 // Initialization
 const app: Application = express()
@@ -20,14 +21,7 @@ dotenv.config()
 
 // Helmet and rate limiting for security and health
 app.use(helmet())
-app.use(
-	rateLimit({
-		windowMs: 15 * 60 * 1000,
-		max: 100,
-		standardHeaders: true,
-		legacyHeaders: false
-	})
-)
+app.use(rateLimit(limitOptions))
 
 // Database connection
 connectDb()

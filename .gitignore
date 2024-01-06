@@ -27,4 +27,9 @@ dist-ssr
 .env
 .env.development
 .env.production
+src/.env
+src/.env.development
+src/.env.production
 server/.env
+server/.env.development
+server/.env.production
