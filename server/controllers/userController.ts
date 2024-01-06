@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import asyncHandler from 'express-async-handler'
 import defaultMovements from '../data/movements.json'
-import MovementList from '../models/movementModel'
+import MovementList from '../models/foodstuffModel'
 import User from '../models/userModel'
 import { generateToken } from '../utils/generateToken'
 import { ExtendedRequest } from '../utils/types'
@@ -31,7 +31,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 	const user = await User.create({
 		username,
 		email,
-		password: hashedPassword,
+		password: hashedPassword
 	})
 
 	// Check if user creation was successful

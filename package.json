@@ -1,16 +1,17 @@
 {
-	"name": "nutralyzer",
+	"name": "nutrilyzer",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
 		"dev": "concurrently \"vite\" \"nodemon --watch server -e ts,tsx --exec ts-node server/app.ts\"",
 		"build": "vite build",
-		"serve": "node dist/server/app.ts",
-		"lint": "eslint . --ext .ts,.tsx",
-		"lint:fix": "eslint . --ext .ts,.tsx --fix",
-		"prettier:check": "prettier --check .",
-		"prettier:write": "prettier --write ."
+		"serve": "node dist/server/app.js",
+		"lint": "eslint src server --ext .ts,.tsx",
+		"lint:fix": "eslint src server --ext .ts,.tsx --fix",
+		"prettier:check": "prettier --check 'src/**/*.{ts,tsx}' 'server/**/*.{ts,tsx}'",
+		"prettier:write": "prettier --write 'src/**/*.{ts,tsx}' 'server/**/*.{ts,tsx}'",
+		"stylelint": "stylelint 'src/**/*.css' 'src/**/*.scss'"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.11.3",
@@ -64,6 +65,9 @@
 		"morgan": "^1.10.0",
 		"nodemon": "^3.0.2",
 		"prettier": "^3.1.1",
+		"stylelint": "^16.1.0",
+		"stylelint-config-recommended": "^14.0.0",
+		"stylelint-config-standard": "^36.0.0",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.2.2",
 		"vite": "^5.0.8"

@@ -10,6 +10,7 @@ import { movementRouter } from './routes/movementRouter'
 import { userRouter } from './routes/userRouter'
 import { workoutRouter } from './routes/workoutRouter'
 import { connectDb } from './utils/db'
+import { corsOptions } from './utils/cors'
 
 // Initialization
 const app: Application = express()
@@ -32,7 +33,7 @@ app.use(
 connectDb()
 
 // Set up CORS
-app.use(cors())
+app.use(cors(corsOptions))
 
 // Morgan for logging
 app.use(morgan('dev'))
@@ -49,7 +50,7 @@ app.use('/api/users', userRouter)
 app.use('/api/foodstuff', foodstuffRouter)
 app.use('/api/meals', mealRouter)
 
-// Error middleware
+// Middleware if async handler catches error
 app.use(errorMiddleware)
 
 // Spin-up

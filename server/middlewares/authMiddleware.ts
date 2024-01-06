@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import jwt from 'jsonwebtoken'
-import { ExtendedRequest } from '../utils/types'
+import { ExtendedRequest } from '../../app-types'
 
 export const authMiddleware = asyncHandler(async (req: ExtendedRequest, res, next) => {
 	// Initialize variables

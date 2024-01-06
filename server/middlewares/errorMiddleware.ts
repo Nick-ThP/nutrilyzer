@@ -1,8 +1,9 @@
 import { Request, Response } from 'express'
+import { ServiceError } from '../utils/ServiceError'
 import { constants } from '../utils/constants'
 
 export const errorMiddleware = (err: Error, req: Request, res: Response) => {
-	const statusCode = res.statusCode || 500
+	const statusCode = err instanceof ServiceError ? err.statusCode : constants.SERVER_ERROR
 
 	switch (statusCode) {
 		case constants.NOT_FOUND:

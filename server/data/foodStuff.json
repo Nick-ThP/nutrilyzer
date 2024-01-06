@@ -1,14 +1,5 @@
 [
 	{
-		"name": "Rice",
-		"calories": 130,
-		"carbs": "28g",
-		"fiber": "0.4g",
-		"fat": "0.3g",
-		"protein": "2.7g",
-		"sodium": "1mg"
-	},
-	{
 		"name": "Pasta",
 		"calories": 131,
 		"carbs": "25g",

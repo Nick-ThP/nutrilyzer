@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { movementSchema } from './movementModel'
+import { movementSchema } from './foodstuffModel'
 
 const exerciseSchema = new Schema({
 	movement: {

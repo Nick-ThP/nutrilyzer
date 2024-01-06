@@ -1,66 +1,57 @@
 import asyncHandler from 'express-async-handler'
-import MovementList from '../models/movementModel'
+import { ExtendedRequest, Foodstuff } from '../../app-types'
+import FoodstuffList from '../models/foodstuffModel'
 import User from '../models/userModel'
-import { ExtendedRequest, Movement } from '../utils/types'
+import { ServiceError } from '../utils/ServiceError'
+import { constants } from '../utils/constants'
 
-//@desc Get list of movements
-//@route GET /api/movements/:id
+//@desc Get list of foodstuffs
+//@route GET /api/foodstuffs/:userId
 //@access private
-export const getMovementList = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Check for user
-	const user = await User.findById(req.params.id)
+export const getFoodstuffList = asyncHandler(async (req: ExtendedRequest, res) => {
+	const user = await User.findById(req.params.userId)
 	if (!user) {
-		res.status(404)
-		throw new Error('User not found')
+		throw new ServiceError('User not found', constants.NOT_FOUND)
 	}
 
-	// Find list associated with user and send it back
-	const movements = await MovementList.findOne({ user_id: req.user?.id })
-	res.status(200).json(movements)
+	const foodstuffList = await FoodstuffList.findOne({ userId: user._id })
+	if (!foodstuffList) {
+		throw new ServiceError('Foodstuff list not found', constants.NOT_FOUND)
+	}
+
+	res.status(200).json(foodstuffList)
 })
 
-//@desc Put list of movements
-//@route PUT /api/movements/:id
+//@desc Update list of foodstuffs
+//@route PUT /api/foodstuffs/:userId
 //@access private
-export const updateMovementList = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Check for user
-	const user = await User.findById(req.params.id)
+export const updateFoodstuffList = asyncHandler(async (req: ExtendedRequest, res) => {
+	const user = await User.findById(req.params.userId)
 	if (!user) {
-		res.status(404)
-		throw new Error('User not found')
+		throw new ServiceError('User not found', constants.NOT_FOUND)
 	}
 
-	// Grab the keys from body object
-	const movements: Movement[] = req.body
-
-	// Check for mandatory information
-	if (movements.length === 0) {
-		res.status(400)
-		throw new Error('Provide at least one movement')
+	const foodstuffs: Foodstuff[] = req.body
+	if (foodstuffs.length === 0) {
+		throw new ServiceError('Provide at least one food item', constants.VALIDATION_ERROR)
 	}
 
-	// Check for all properties on each exercise
-	for (const movement of movements) {
-		const { name, area, targetedMuscle } = movement
-
-		if (!name || !area || targetedMuscle.length === 0) {
-			res.status(400)
-			throw new Error('Provide all required properties on each movement')
+	for (const foodstuff of foodstuffs) {
+		const { name, calories, carbs, fiber, fat, protein, sodium } = foodstuff
+		if (!name || !calories || !carbs || !fiber || !fat || !protein || !sodium) {
+			throw new ServiceError(`Missing required properties in ${name || 'a food item'}`, constants.VALIDATION_ERROR)
 		}
 	}
 
-	// Update the database and send back the movement list
-	const updatedMovements = await MovementList.findOneAndUpdate(
-		{ user_id: req.params.id },
-		{ $set: { movements: movements } },
+	const updatedFoodstuffList = await FoodstuffList.findOneAndUpdate(
+		{ userId: user._id },
+		{ $set: { foodstuffs: foodstuffs } },
 		{ new: true }
 	)
 
-	// Check if the update was successful
-	if (!updatedMovements) {
-		res.status(400)
-		throw new Error('Could not update the list with the provided information')
+	if (!updatedFoodstuffList) {
+		throw new ServiceError('Could not update the foodstuff list', constants.SERVER_ERROR)
 	}
 
-	res.status(200).json(updatedMovements)
+	res.status(200).json(updatedFoodstuffList)
 })
