@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
-import { Foodstuff } from '../utils/types'
+import { IFoodItem } from '../../app-types'
 
-export const foodstuffSchema = new Schema<Foodstuff>({
+const foodItemSchema = new Schema<IFoodItem>({
 	name: {
 		type: String,
 		required: true
@@ -29,24 +29,21 @@ export const foodstuffSchema = new Schema<Foodstuff>({
 	sodium: {
 		type: String,
 		required: true
-	}
-})
-
-const foodstuffListSchema = new Schema(
-	{
-		foodstuffs: {
-			type: [foodstuffSchema],
-			required: true
-		},
-		user_id: {
+	},
+	isDefault: {
+		type: Boolean,
+		required: true
+	},
+	userId: {
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	},
+	hiddenByUsers: [
+		{
 			type: Schema.Types.ObjectId,
-			required: true,
 			ref: 'User'
 		}
-	},
-	{
-		timestamps: true
-	}
-)
+	]
+})
 
-export default mongoose.model('FoodstuffList', foodstuffListSchema)
+export default mongoose.model<IFoodItem>('FoodItem', foodItemSchema)

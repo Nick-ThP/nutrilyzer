@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import { ExtendedRequest, Foodstuff } from '../../app-types'
-import FoodstuffList from '../models/foodstuffModel'
+import FoodstuffList from '../models/foodItemModel'
 import User from '../models/userModel'
 import { ServiceError } from '../utils/ServiceError'
 import { constants } from '../utils/constants'

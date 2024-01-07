@@ -8,7 +8,8 @@ module.exports = {
 		'plugin:react/recommended',
 		'plugin:react/jsx-runtime',
 		'plugin:node/recommended',
-		'plugin:prettier/recommended'
+		'plugin:prettier/recommended',
+		'prettier'
 	],
 	ignorePatterns: ['dist', '.eslintrc.cjs', 'postcss.config.js', 'tailwind.config.js'],
 	parser: '@typescript-eslint/parser',
@@ -18,7 +19,7 @@ module.exports = {
 		project: ['./tsconfig.json', './tsconfig.node.json'],
 		tsconfigRootDir: __dirname
 	},
-	plugins: ['react-refresh', 'node'],
+	plugins: ['react-refresh', 'node', 'prettier'],
 	overrides: [
 		{
 			files: ['*.ts', '*.tsx'],
@@ -29,7 +30,8 @@ module.exports = {
 	],
 	rules: {
 		'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-		'node/no-unpublished-import': 'off'
+		'node/no-unpublished-import': 'off',
+		'prettier/prettier': 'error'
 	},
 	compilerOptions: {
 		baseUrl: './',

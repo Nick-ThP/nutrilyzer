@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import asyncHandler from 'express-async-handler'
 import defaultMovements from '../data/movements.json'
-import MovementList from '../models/foodstuffModel'
+import MovementList from '../models/foodItemModel'
 import User from '../models/userModel'
 import { generateToken } from '../utils/generateToken'
 import { ExtendedRequest } from '../utils/types'

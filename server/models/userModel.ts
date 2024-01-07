@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
+import { IUser } from '../../app-types'
 
-const userSchema = new Schema(
+const userSchema = new Schema<IUser>(
 	{
 		username: {
 			type: String,
@@ -21,4 +22,4 @@ const userSchema = new Schema(
 	}
 )
 
-export default mongoose.model('User', userSchema)
+export default mongoose.model<IUser>('User', userSchema)
