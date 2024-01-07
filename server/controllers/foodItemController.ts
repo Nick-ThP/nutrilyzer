@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler'
-import { ExtendedRequest, Foodstuff } from '../../app-types'
+import { IFoodItem } from '../../app-types'
 import FoodstuffList from '../models/foodItemModel'
 import User from '../models/userModel'
 import { ServiceError } from '../utils/ServiceError'
@@ -8,7 +8,7 @@ import { constants } from '../utils/constants'
 //@desc Get list of foodstuffs
 //@route GET /api/foodstuffs/:userId
 //@access private
-export const getFoodstuffList = asyncHandler(async (req: ExtendedRequest, res) => {
+export const getFoodstuffList = asyncHandler(async (req, res) => {
 	const user = await User.findById(req.params.userId)
 	if (!user) {
 		throw new ServiceError('User not found', constants.NOT_FOUND)
@@ -25,13 +25,13 @@ export const getFoodstuffList = asyncHandler(async (req: ExtendedRequest, res) =
 //@desc Update list of foodstuffs
 //@route PUT /api/foodstuffs/:userId
 //@access private
-export const updateFoodstuffList = asyncHandler(async (req: ExtendedRequest, res) => {
+export const updateFoodstuffList = asyncHandler(async (req, res) => {
 	const user = await User.findById(req.params.userId)
 	if (!user) {
 		throw new ServiceError('User not found', constants.NOT_FOUND)
 	}
 
-	const foodstuffs: Foodstuff[] = req.body
+	const foodstuffs: IFoodItem[] = req.body
 	if (foodstuffs.length === 0) {
 		throw new ServiceError('Provide at least one food item', constants.VALIDATION_ERROR)
 	}

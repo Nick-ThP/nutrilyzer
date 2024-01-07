@@ -44,16 +44,17 @@ const dailyLogSchema = new Schema<IDailyLog>(
 	}
 )
 
-// Pre middleware to check and delete if all mealtimes are empty
-dailyLogSchema.pre('save', async function (next) {
-	const dailyLog = this
-	const isEmpty = Object.values(dailyLog.meals).every(mealtime => mealtime.length === 0)
+// Post middleware to check and delete stored log if all mealtimes are empty after an update
+dailyLogSchema.post('save', async function () {
+	try {
+		const isEmpty = Object.values(this.meals).every(mealtime => mealtime.length === 0)
 
-	if (isEmpty) {
-		await DailyLog.deleteOne({ _id: dailyLog._id })
+		if (isEmpty) {
+			await DailyLog.deleteOne({ _id: this._id })
+		}
+	} catch (error) {
+		console.error('Error in dailyLog post-save middleware:', error)
 	}
-
-	next()
 })
 
 export const DailyLog = mongoose.model<IDailyLog>('DailyLog', dailyLogSchema)
