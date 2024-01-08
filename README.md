@@ -10,7 +10,7 @@ Nutrilyzer is a full-stack nutrition analyzer built with React, Express, and Mon
 
 -   **User Dashboard**: Simple navigation for date selection and meal logging. Especially with already indexed meals.
 
--   **Analytics Page**: View daily, weekly, or monthly dietary data, including macronutrients, sodium, fiber, and calorie intake.
+-   **Analytics Page**: View daily, weekly, or monthly dietary data, including macronutrients, sodium, and calorie intake.
 
 -   **CRUD Operations**: Manage your food, meal and daily log data with create, read, update, and delete options.
 
