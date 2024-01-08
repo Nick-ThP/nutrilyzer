@@ -5,13 +5,13 @@ import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import { errorMiddleware } from './middlewares/errorMiddleware'
-import { movementRouter } from './routes/movementRouter'
-import { userRouter } from './routes/userRouter'
-import { workoutRouter } from './routes/workoutRouter'
+import { errorMiddleware } from './middlewares/error-middleware'
+import { movementRouter } from './routes/food-item-router'
+import { userRouter } from './routes/user-router'
+import { workoutRouter } from './routes/meal-router'
 import { corsOptions } from './utils/cors'
 import { connectDb } from './utils/db'
-import { limitOptions } from './utils/rateLimit'
+import { limitOptions } from './utils/rate-limit'
 
 // Initialization
 const app: Application = express()

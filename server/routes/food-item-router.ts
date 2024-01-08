@@ -1,6 +1,6 @@
 import express from 'express'
-import { getMovementList, updateMovementList } from '../controllers/foodItemController'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { getMovementList, updateMovementList } from '../controllers/food-item-controller'
+import { authMiddleware } from '../middlewares/auth-middleware'
 
 export const movementRouter = express.Router()
 

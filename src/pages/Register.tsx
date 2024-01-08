@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Spinner } from '../components/Spinner'
-import { register, reset } from '../redux/features/auth/authSlice'
+import { register, reset } from '../redux/features/slices/auth-slice'
 import { AppDispatch, RootState } from '../redux/store'
 import { User } from '../utils/types'
 
@@ -32,7 +32,7 @@ export const Register = () => {
 	}, [user, isError, isSuccess, message, navigate, dispatch])
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData((prevState) => ({
+		setFormData(prevState => ({
 			...prevState,
 			[e.target.name]: e.target.value
 		}))

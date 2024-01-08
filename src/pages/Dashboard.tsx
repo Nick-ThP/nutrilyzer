@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import { Spinner } from '../components/Spinner'
 import { WorkoutForm } from '../components/WorkoutForm'
 import { WorkoutItem } from '../components/WorkoutItem'
-import { getWorkouts, reset } from '../redux/features/workouts/workoutSlice'
+import { getWorkouts, reset } from '../redux/features/slices/workout-slice'
 import { AppDispatch, RootState } from '../redux/store'
 
 export const Dashboard = () => {
@@ -47,7 +47,7 @@ export const Dashboard = () => {
 				<section className='workout-content'>
 					{workouts.length > 0 ? (
 						<div className='workouts'>
-							{workouts.map((workout) => (
+							{workouts.map(workout => (
 								<WorkoutItem key={workout._id} id={workout._id} workout={workout} />
 							))}
 						</div>

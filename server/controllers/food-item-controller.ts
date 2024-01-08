@@ -1,9 +1,9 @@
 import asyncHandler from 'express-async-handler'
 import { IFoodItem } from '../../app-types'
-import FoodstuffList from '../models/foodItemModel'
-import User from '../models/userModel'
-import { ServiceError } from '../utils/ServiceError'
+import FoodstuffList from '../models/food-item-model'
+import User from '../models/user-model'
 import { constants } from '../utils/constants'
+import { ServiceError } from '../utils/service-error'
 
 //@desc Get list of foodstuffs
 //@route GET /api/foodstuffs/:userId

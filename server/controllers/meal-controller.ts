@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler'
-import Workout from '../models/mealModel'
+import Workout from '../models/meal-model'
 import { Exercise, ExtendedRequest } from '../utils/types'
 
 //@desc Get all workouts

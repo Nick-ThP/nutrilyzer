@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler'
 import { ExtendedRequest } from '../../app-types'
-import { DailyLog } from '../models/dailyLogsModel'
-import { Meal } from '../models/mealModel'
+import { DailyLog } from '../models/daily-log-model'
+import { Meal } from '../models/meal-model'
 
 //@desc Update meals in the daily log
 //@route PUT /api/dailyLog/:date

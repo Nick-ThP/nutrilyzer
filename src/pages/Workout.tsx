@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import Modal from '../components/Modal'
 import { Spinner } from '../components/Spinner'
 import { WorkoutForm } from '../components/WorkoutForm'
-import { deleteWorkout, getWorkout } from '../redux/features/workouts/workoutSlice'
+import { deleteWorkout, getWorkout } from '../redux/features/slices/workout-slice'
 import { AppDispatch, RootState } from '../redux/store'
 
 type Props = {}

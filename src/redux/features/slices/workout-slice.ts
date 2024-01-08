@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { CreatedWorkout, Workout, WorkoutPutPackage } from '../../../utils/types'
 import { RootState } from '../../store'
-import { workoutService } from './workoutService'
+import { workoutService } from '../services/workout-service'
 
 interface WorkoutState {
 	workouts: CreatedWorkout[]
@@ -107,13 +107,13 @@ export const workoutSlice = createSlice({
 	name: 'workout',
 	initialState,
 	reducers: {
-		reset: (state) => initialState
+		reset: state => initialState
 	},
-	extraReducers: (builder) => {
+	extraReducers: builder => {
 		builder
 
 			// Read
-			.addCase(getWorkouts.pending, (state) => {
+			.addCase(getWorkouts.pending, state => {
 				state.isLoading = true
 			})
 			.addCase(getWorkouts.fulfilled, (state, action) => {
@@ -128,7 +128,7 @@ export const workoutSlice = createSlice({
 			})
 
 			// Read specific
-			.addCase(getWorkout.pending, (state) => {
+			.addCase(getWorkout.pending, state => {
 				state.isLoading = true
 			})
 			.addCase(getWorkout.fulfilled, (state, action) => {
@@ -143,7 +143,7 @@ export const workoutSlice = createSlice({
 			})
 
 			// Create
-			.addCase(createWorkout.pending, (state) => {
+			.addCase(createWorkout.pending, state => {
 				state.isLoading = true
 			})
 			.addCase(createWorkout.fulfilled, (state, action) => {
@@ -158,13 +158,13 @@ export const workoutSlice = createSlice({
 			})
 
 			// Update
-			.addCase(updateWorkout.pending, (state) => {
+			.addCase(updateWorkout.pending, state => {
 				state.isLoading = true
 			})
 			.addCase(updateWorkout.fulfilled, (state, action) => {
 				state.isLoading = false
 				state.isSuccess = true
-				state.workouts = state.workouts.map((workout) =>
+				state.workouts = state.workouts.map(workout =>
 					workout._id !== action.payload.id ? { ...workout, text: action.payload } : workout
 				)
 			})
@@ -175,13 +175,13 @@ export const workoutSlice = createSlice({
 			})
 
 			// Delete
-			.addCase(deleteWorkout.pending, (state) => {
+			.addCase(deleteWorkout.pending, state => {
 				state.isLoading = true
 			})
 			.addCase(deleteWorkout.fulfilled, (state, action) => {
 				state.isLoading = false
 				state.isSuccess = true
-				state.workouts = state.workouts.filter((workout) => workout._id !== action.payload)
+				state.workouts = state.workouts.filter(workout => workout._id !== action.payload)
 			})
 			.addCase(deleteWorkout.rejected, (state, action) => {
 				state.isLoading = false

@@ -3,7 +3,7 @@ import { FaTimesCircle } from 'react-icons/fa'
 import { useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
 import exercises from '../data/movements.json'
-import { createWorkout, getWorkout, getWorkouts, updateWorkout } from '../redux/features/workouts/workoutSlice'
+import { createWorkout, getWorkout, getWorkouts, updateWorkout } from '../redux/features/slices/workout-slice'
 import { AppDispatch } from '../redux/store'
 import { CreatedWorkout, Exercise, ExerciseForm, Movement } from '../utils/types'
 import Modal from './Modal'
@@ -30,7 +30,7 @@ export const WorkoutForm = (props: CreateProps | PutProps) => {
 	})
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-		setExerciseForm((prevState) => ({
+		setExerciseForm(prevState => ({
 			...prevState,
 			[e.target.name]: e.target.value
 		}))
@@ -58,15 +58,15 @@ export const WorkoutForm = (props: CreateProps | PutProps) => {
 
 	const exerciseSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		if (Object.values(exerciseForm).some((value) => value === 0 || '')) {
+		if (Object.values(exerciseForm).some(value => value === 0 || '')) {
 			return toast.error('Fill out all fields before adding an exercise')
 		}
 
-		if (workout.find((exercise) => exercise.movement.name === exerciseForm?.movementName)) {
+		if (workout.find(exercise => exercise.movement.name === exerciseForm?.movementName)) {
 			return toast.error('You cannot add the same exercise twice')
 		}
 
-		const foundMovement = exercises.find((exercise) => exercise.name === exerciseForm.movementName)
+		const foundMovement = exercises.find(exercise => exercise.name === exerciseForm.movementName)
 		if (!foundMovement) return toast.error('You need an eligible movement to continue')
 
 		const assembledExercise: Exercise = {
@@ -75,12 +75,12 @@ export const WorkoutForm = (props: CreateProps | PutProps) => {
 			movement: foundMovement as Movement
 		}
 
-		setWorkout((prevState) => [...prevState, assembledExercise])
+		setWorkout(prevState => [...prevState, assembledExercise])
 		closeAndInitializeExerciseModal()
 	}
 
 	const removeExercise = (name: string) => {
-		setWorkout((prev) => prev.filter((exercise) => exercise.movement.name !== name))
+		setWorkout(prev => prev.filter(exercise => exercise.movement.name !== name))
 	}
 
 	const closeAndInitializeExerciseModal = () => {
@@ -141,7 +141,7 @@ export const WorkoutForm = (props: CreateProps | PutProps) => {
 									Choose a muscle group
 								</option>
 								{exercises
-									.filter((exercise) => !workout.find((addedExercise) => exercise.name === addedExercise.movement.name))
+									.filter(exercise => !workout.find(addedExercise => exercise.name === addedExercise.movement.name))
 									.map((exercise, index) => (
 										<option key={index} value={exercise.name}>
 											{exercise.name}

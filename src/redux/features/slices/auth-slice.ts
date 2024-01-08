@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { User } from '../../../utils/types'
-import { authService } from './authService'
+import { authService } from '../services/auth-service'
 
 interface UserState {
 	user: User | null
@@ -46,16 +46,16 @@ export const authSlice = createSlice({
 	name: 'auth',
 	initialState,
 	reducers: {
-		reset: (state) => {
+		reset: state => {
 			state.isError = false
 			state.isSuccess = false
 			state.isLoading = false
 			state.message = ''
 		}
 	},
-	extraReducers: (builder) => {
+	extraReducers: builder => {
 		builder
-			.addCase(register.pending, (state) => {
+			.addCase(register.pending, state => {
 				state.isLoading = true
 			})
 			.addCase(register.fulfilled, (state, action) => {
@@ -69,7 +69,7 @@ export const authSlice = createSlice({
 				state.message = action.payload as string
 				state.user = null
 			})
-			.addCase(login.pending, (state) => {
+			.addCase(login.pending, state => {
 				state.isLoading = true
 			})
 			.addCase(login.fulfilled, (state, action) => {
@@ -83,7 +83,7 @@ export const authSlice = createSlice({
 				state.message = action.payload as string
 				state.user = null
 			})
-			.addCase(logout.fulfilled, (state) => {
+			.addCase(logout.fulfilled, state => {
 				state.user = null
 			})
 	}
