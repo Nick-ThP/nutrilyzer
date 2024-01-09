@@ -26,7 +26,7 @@ export interface IFoodItem {
 }
 
 export interface IFoodItemEntry {
-	id: ObjectId
+	_id: ObjectId
 	grams: number
 }
 
@@ -40,7 +40,7 @@ export interface IMeal {
 }
 
 export interface IDailyLogMealEntry {
-	meal: ObjectId[]
+	_id: ObjectId
 }
 
 export interface IDailyLog {

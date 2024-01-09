@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { constants } from '../utils/constants'
 import { ServiceError } from '../utils/service-error'
 
-export const errorMiddleware = (err: Error, req: Request, res: Response) => {
+export const asyncErrorMiddleware = (err: Error, req: Request, res: Response) => {
 	const statusCode = err instanceof ServiceError ? err.statusCode : constants.SERVER_ERROR
 
 	switch (statusCode) {

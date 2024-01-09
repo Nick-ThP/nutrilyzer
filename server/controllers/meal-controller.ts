@@ -2,6 +2,8 @@ import asyncHandler from 'express-async-handler'
 import Workout from '../models/meal-model'
 import { Exercise, ExtendedRequest } from '../utils/types'
 
+// DELETE MEAL IN ALL OF THE DAILY LOGS THAT IT IS PART OF
+
 //@desc Get all workouts
 //@route GET /api/workouts
 //@access private

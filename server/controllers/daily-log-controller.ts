@@ -3,6 +3,8 @@ import { ExtendedRequest } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { Meal } from '../models/meal-model'
 
+// MAKE SURE ITEM IS DELETED WHEN THERE IS NO MEAL AND CREATED WHEN THERE IS UPDATED WITH MEAL
+
 //@desc Update meals in the daily log
 //@route PUT /api/dailyLog/:date
 //@access private

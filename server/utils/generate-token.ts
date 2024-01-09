@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
-import { User } from './types'
+import { IUser } from '../../app-types'
 
-export const generateToken = (user: User) => {
+export const generateToken = (user: IUser) => {
 	return jwt.sign(
 		{
 			user
