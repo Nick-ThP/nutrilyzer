@@ -1,10 +1,8 @@
 import bcrypt from 'bcrypt'
 import asyncHandler from 'express-async-handler'
-import defaultMovements from '../data/movements.json'
-import MovementList from '../models/food-item-model'
-import User from '../models/user-model'
+import { User } from '../models/user-model'
 import { generateToken } from '../utils/generate-token'
-import { ExtendedRequest } from '../utils/types'
+import { ExtendedRequest } from '../../app-types'
 
 //@desc Register a user
 //@route POST /api/users/register
@@ -38,18 +36,6 @@ export const registerUser = asyncHandler(async (req, res) => {
 	if (!user) {
 		res.status(400)
 		throw new Error('User data is not valid')
-	}
-
-	// Create an individual list of movements for the user
-	const movementList = await MovementList.create({
-		movements: defaultMovements,
-		user_id: user.id
-	})
-
-	// Check if the list was created successfully
-	if (!movementList) {
-		res.status(400)
-		throw new Error('Could not create list of movements for the user')
 	}
 
 	// Send a response with new user object including token

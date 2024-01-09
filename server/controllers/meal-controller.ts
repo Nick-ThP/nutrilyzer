@@ -1,149 +1,102 @@
 import asyncHandler from 'express-async-handler'
-import Workout from '../models/meal-model'
-import { Exercise, ExtendedRequest } from '../utils/types'
+import { ObjectId } from 'mongodb'
+import { ExtendedRequest } from '../../app-types'
+import { DailyLog } from '../models/daily-log-model'
+import { Meal } from '../models/meal-model'
+import { constants } from '../utils/constants'
+import { ServiceError } from '../utils/service-error'
 
-// DELETE MEAL IN ALL OF THE DAILY LOGS THAT IT IS PART OF
+// @desc Create a new meal
+// @route POST /api/meals
+// @access private
+export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
+	const { name, foodItems, userId } = req.body
 
-//@desc Get all workouts
-//@route GET /api/workouts
-//@access private
-export const getWorkouts = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Find all workouts associated with the user and send them back
-	const workouts = await Workout.find({ user_id: req.user?.id })
-	res.status(200).json(workouts)
-})
-
-//@desc Create a workout
-//@route POST /api/workouts
-//@access private
-export const createWorkout = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Grab the keys from body object
-	const { exercises }: { exercises: Exercise[] } = req.body
-
-	// Check for mandatory information
-	if (exercises.length === 0) {
-		res.status(400)
-		throw new Error('Provide at least one exercise')
-	}
-
-	// Check for all properties on each exercise
-	for (const exercise of exercises) {
-		const { movement, sets, reps } = exercise
-
-		if (!movement || !sets || !reps) {
-			res.status(400)
-			throw new Error('Provide all required properties on each exercise')
-		}
-	}
-
-	// Create the workout in the database
-	const workout = await Workout.create({
-		...req.body,
-		user_id: req.user?.id
+	const newMeal = new Meal({
+		name,
+		foodItems,
+		userId,
+		isDefault: false
 	})
 
-	// Send back the workout
-	res.status(201).json(workout)
+	await newMeal.save()
+	res.status(201).json(newMeal)
 })
 
-//@desc Get a workout
-//@route GET /api/workouts/:id
-//@access private
-export const getWorkout = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Check for workout
-	const workout = await Workout.findById(req.params.id)
-	if (!workout) {
-		res.status(404)
-		throw new Error('Workout not found')
+// @desc Get a single meal by ID
+// @route GET /api/meals/:id
+// @access private
+export const getMealById = asyncHandler(async (req: ExtendedRequest, res) => {
+	const { id } = req.params
+
+	const meal = await Meal.findById(id)
+	if (!meal) {
+		throw new ServiceError('Meal not found', constants.NOT_FOUND)
 	}
 
-	// Check for user
-	if (!req.user) {
-		res.status(404)
-		throw new Error('User not found')
-	}
-
-	// Check that user has permission
-	if (workout?.user_id.toString() !== req.user?.id?.toString()) {
-		res.status(403)
-		throw new Error('User not authorized')
-	}
-
-	// Send back the workout
-	res.status(200).json(workout)
+	res.status(200).json(meal)
 })
 
-//@desc Put a workout
-//@route PUT /api/workouts/:id
-//@access private
-export const updateWorkout = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Grab the keys from body object
-	const { exercises }: { exercises: Exercise[] } = req.body
+// @desc Update a meal
+// @route PUT /api/meals/:id
+// @access private
+export const updateMeal = asyncHandler(async (req, res) => {
+	const { id } = req.params
+	const updateData = req.body
 
-	// Check for mandatory information
-	if (exercises.length === 0) {
-		res.status(400)
-		throw new Error('Provide at least one exercise')
+	const meal = await Meal.findByIdAndUpdate(id, updateData, { new: true })
+	if (!meal) {
+		throw new ServiceError('Meal not found', constants.NOT_FOUND)
 	}
 
-	// Check for all properties on each exercise
-	for (const exercise of exercises) {
-		const { movement, sets, reps } = exercise
+	res.status(200).json(meal)
+})
 
-		if (!movement || !sets || !reps) {
-			res.status(400)
-			throw new Error('Provide all required properties on each exercise')
+// @desc Get multiple meals by IDs
+// @route POST /api/meals/byIds
+// @access private
+export const getMealsByIds = asyncHandler(async (req, res) => {
+	const { mealIds } = req.body
+
+	const meals = await Meal.find({ _id: { $in: mealIds } })
+	res.status(200).json(meals)
+})
+
+// @desc Delete a meal
+// @route DELETE /api/meals/:id
+// @access private
+export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
+	const { id } = req.params
+	const userId = req.user._id
+
+	const meal = await Meal.findById(id)
+	if (!meal) {
+		throw new ServiceError('Meal not found', constants.NOT_FOUND)
+	}
+
+	// If meal is default, hide it for the user instead of deleting
+	if (meal.isDefault) {
+		if (!meal.hiddenByUsers.includes(userId)) {
+			meal.hiddenByUsers.push(userId)
+			await meal.save()
 		}
+	} else {
+		await Meal.findByIdAndDelete(id)
+		await updateDailyLogsForMealDeletion(id, userId) // Call the utility function to update daily logs
 	}
 
-	// Check for workout
-	const workout = await Workout.findById(req.params.id)
-	if (!workout) {
-		res.status(404)
-		throw new Error('Workout not found')
-	}
-
-	// Check for user
-	if (!req.user) {
-		res.status(404)
-		throw new Error('User not found')
-	}
-
-	// Check that user has permission
-	if (workout?.user_id.toString() !== req.user?.id?.toString()) {
-		res.status(403)
-		throw new Error('User not authorized')
-	}
-
-	// Update the database and send back the workout
-	const updatedWorkout = await Workout.findByIdAndUpdate(req.params.id, req.body, { new: true })
-	res.status(200).json(updatedWorkout)
+	res.status(200).json({ message: 'Meal deleted successfully' })
 })
 
-//@desc Delete a workout
-//@route DELETE /api/workouts/:id
-//@access private
-export const deleteWorkout = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Check for workout
-	const workout = await Workout.findById(req.params.id)
-	if (!workout) {
-		res.status(404)
-		throw new Error('Workout not found')
-	}
+// Utility function to update daily logs for a specific user upon meal deletion
+const updateDailyLogsForMealDeletion = async (mealId, userId) => {
+	const dailyLogs = await DailyLog.find({ userId })
 
-	// Check for user
-	if (!req.user) {
-		res.status(404)
-		throw new Error('User not found')
-	}
+	dailyLogs.forEach(async log => {
+		;['breakfast', 'lunch', 'dinner', 'snack'].forEach(mealTime => {
+			log.meals[mealTime] = log.meals[mealTime].filter(id => id.toString() !== mealId.toString())
+		})
 
-	// Check that user has permission
-	if (workout.user_id.toString() !== req.user.id?.toString()) {
-		res.status(403)
-		throw new Error('User not authorized')
-	}
-
-	// Update database and send back the workout
-	await Workout.findByIdAndDelete(req.params.id)
-	res.status(200).json(workout)
-})
+		await log.save()
+	})
+}

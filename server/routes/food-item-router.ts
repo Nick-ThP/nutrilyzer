@@ -2,7 +2,7 @@ import express from 'express'
 import { createFoodItem, getAllFoodItemNames, getFoodItemById, updateFoodItem, deleteFoodItem } from '../controllers/food-item-controller'
 import { authMiddleware } from '../middlewares/auth-middleware'
 import { validationErrorsMiddleware } from '../middlewares/validation-errors-middleware'
-import { foodItemValidator } from '../validators/food-item'
+import { foodItemValidator } from '../validators/food-item-validator'
 
 export const foodItemRouter = express.Router()
 
