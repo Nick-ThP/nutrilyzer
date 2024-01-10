@@ -1,6 +1,6 @@
 import { Request } from 'express'
 import { ObjectId } from 'mongodb'
-import { Date } from 'mongoose'
+import { Date, Model } from 'mongoose'
 
 // Core application types
 
@@ -25,37 +25,41 @@ export interface IFoodItem {
 	hiddenByUsers: ObjectId[]
 }
 
-export interface IFoodItemEntry {
-	_id: ObjectId
+export interface IFoodItemEntry<FoodType> {
+	foodItem: FoodType
 	grams: number
 }
 
-export interface IMeal {
+export interface IMeal<FoodType> {
 	_id?: ObjectId
 	name: string
-	foodItems: IFoodItemEntry[]
+	foodEntry: IFoodItemEntry<FoodType>[]
 	isDefault: boolean
 	userId?: ObjectId
 	hiddenByUsers: ObjectId[]
 }
 
-export interface IDailyLogMealEntry {
-	_id: ObjectId
-}
-
-export interface IDailyLog {
+export interface IDailyLog<MealType> {
 	_id?: string
 	date: Date
 	userId: ObjectId
 	meals: {
-		breakfast: IDailyLogMealEntry[]
-		lunch: IDailyLogMealEntry[]
-		dinner: IDailyLogMealEntry[]
-		snacks: IDailyLogMealEntry[]
+		breakfast: MealType[]
+		lunch: MealType[]
+		dinner: MealType[]
+		snacks: MealType[]
 	}
 }
 
 // Modified types
+
+export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {
+	customUpdate(
+		filter: Record<string, any>,
+		update: Record<string, any>,
+		options: Record<string, any>
+	): Promise<IDailyLog<ObjectId> | null>
+}
 
 export interface ExtendedRequest extends Request {
 	user?: IUser

@@ -5,11 +5,11 @@ import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import { asyncErrorMiddleware } from './middlewares/async-error-middleware'
+import { createHttpErrorResponse } from './middlewares/http-error-middleware'
+import { dailyLogRouter } from './routes/daily-log-router'
 import { foodItemRouter } from './routes/food-item-router'
 import { mealRouter } from './routes/meal-router'
 import { userRouter } from './routes/user-router'
-import { dailyLogRouter } from './routes/daily-log-router'
 import { corsOptions } from './utils/cors'
 import { connectDb } from './utils/db'
 import { limitOptions } from './utils/rate-limit'
@@ -47,7 +47,7 @@ app.use('/api/meals', mealRouter)
 app.use('/api/dailyLogs', dailyLogRouter)
 
 // Middleware if async handler catches error
-app.use(asyncErrorMiddleware)
+app.use(createHttpErrorResponse)
 
 // Spin-up
 const port = process.env.PORT || 5000

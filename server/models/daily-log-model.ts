@@ -1,7 +1,7 @@
-import mongoose, { Schema } from 'mongoose'
-import { IDailyLog } from '../../app-types'
+import mongoose, { ObjectId, Schema } from 'mongoose'
+import { IDailyLog, IDailyLogModel } from '../../app-types'
 
-const dailyLogSchema = new Schema<IDailyLog>(
+const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
 	{
 		date: {
 			type: Date,
@@ -44,17 +44,25 @@ const dailyLogSchema = new Schema<IDailyLog>(
 	}
 )
 
-// Post middleware to check and delete stored log if all mealtimes are empty after an update
-dailyLogSchema.post('save', async function () {
-	try {
-		const isEmpty = Object.values(this.meals).every(mealtime => mealtime.length === 0)
+function isEmptyMeals(meals: ObjectId[][]) {
+	return Object.values(meals).every(mealArray => mealArray.length === 0)
+}
 
-		if (isEmpty) {
-			await DailyLog.deleteOne({ _id: this._id })
-		}
-	} catch (error) {
-		console.error('Error in dailyLog post-save middleware:', error)
+// Custom static method for updating and handling post-update logic
+dailyLogSchema.statics.customUpdate = async function (
+	filter: Record<string, any>,
+	update: Record<string, any>,
+	options: Record<string, any>
+) {
+	// Perform the update
+	const result = await this.findOneAndUpdate(filter, update, options)
+
+	// Check if the updated log has empty meals and delete if necessary
+	if (result && isEmptyMeals(result.meals)) {
+		await this.deleteOne({ _id: result._id })
 	}
-})
 
-export const DailyLog = mongoose.model<IDailyLog>('DailyLog', dailyLogSchema)
+	return result
+}
+
+export const DailyLog = mongoose.model<IDailyLog<ObjectId>, IDailyLogModel>('DailyLog', dailyLogSchema)

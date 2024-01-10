@@ -1,7 +1,7 @@
 import express from 'express'
-import { getMeals, createMeal, updateMeal, deleteMeal } from '../controllers/meal-controller'
+import { createMeal, deleteMeal, getMeals, updateMeal } from '../controllers/meal-controller'
 import { authMiddleware } from '../middlewares/auth-middleware'
-import { validationErrorsMiddleware } from '../middlewares/validation-errors-middleware'
+import { validationErrorsMiddleware } from '../middlewares/validation-middleware'
 import { mealValidator } from '../validators/meal-validator'
 
 export const mealRouter = express.Router()

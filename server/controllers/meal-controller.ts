@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 import { ExtendedRequest } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { Meal } from '../models/meal-model'
-import { constants } from '../utils/constants'
+import { constants } from '../utils/http-messages'
 import { ServiceError } from '../utils/service-error'
 
 // @desc Create a new meal

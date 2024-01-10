@@ -1,18 +1,23 @@
 import mongoose, { Schema } from 'mongoose'
 import { IMeal } from '../../app-types'
+import { ObjectId } from 'mongodb'
 
-const mealSchema = new Schema<IMeal>({
+const mealSchema = new Schema<IMeal<ObjectId>>({
 	name: {
 		type: String,
 		required: true
 	},
-	foodItems: [
+	foodEntry: [
 		{
-			id: {
+			foodItem: {
 				type: Schema.Types.ObjectId,
-				ref: 'FoodItem'
+				ref: 'FoodItem',
+				required: true
 			},
-			grams: Number
+			grams: {
+				type: Number,
+				required: true
+			}
 		}
 	],
 	isDefault: {
@@ -31,4 +36,4 @@ const mealSchema = new Schema<IMeal>({
 	]
 })
 
-export const Meal = mongoose.model<IMeal>('Meal', mealSchema)
+export const Meal = mongoose.model<IMeal<ObjectId>>('Meal', mealSchema)

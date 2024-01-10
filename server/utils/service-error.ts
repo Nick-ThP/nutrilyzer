@@ -1,5 +1,3 @@
-// For combining error messages and their respective HTTP codes in async handlers
-
 export class ServiceError extends Error {
 	statusCode: number
 
