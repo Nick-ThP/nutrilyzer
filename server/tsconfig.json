@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"target": "es2019",
+		"module": "CommonJS",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"outDir": "./dist",
+		"rootDir": "./server",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"strictNullChecks": true
+	},
+	"include": ["server/**/*", "../app-types.ts"],
+	"exclude": ["node_modules"]
+}
