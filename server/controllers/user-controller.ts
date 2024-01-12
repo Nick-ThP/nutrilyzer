@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt'
 import asyncHandler from 'express-async-handler'
+import { ExtendedRequest } from '../../app-types'
 import { User } from '../models/user-model'
 import { generateToken } from '../utils/generate-token'
-import { ExtendedRequest } from '../../app-types'
 
 //@desc Register a user
 //@route POST /api/users/register
@@ -10,12 +10,6 @@ import { ExtendedRequest } from '../../app-types'
 export const registerUser = asyncHandler(async (req, res) => {
 	// Grab the keys from body object
 	const { username, email, password } = req.body
-
-	// Check for mandatory information
-	if (!username || !email || !password) {
-		res.status(400)
-		throw new Error('All fields are mandatory')
-	}
 
 	// Check if user is already registered
 	const userAvailable = await User.findOne({ email })
@@ -40,10 +34,10 @@ export const registerUser = asyncHandler(async (req, res) => {
 
 	// Send a response with new user object including token
 	res.status(201).json({
-		id: user.id,
+		_id: user._id,
 		username: user.username,
 		email: user.email,
-		token: generateToken({ username, id: user.id })
+		token: generateToken({ username, _id: user._id })
 	})
 })
 
@@ -53,12 +47,6 @@ export const registerUser = asyncHandler(async (req, res) => {
 export const loginUser = asyncHandler(async (req, res) => {
 	// Grab the keys from body object
 	const { email, password } = req.body
-
-	// Check for mandatory information
-	if (!email || !password) {
-		res.status(400)
-		throw new Error('All fields are mandatory')
-	}
 
 	// Check if user's email is registered
 	const user = await User.findOne({ email })
@@ -73,7 +61,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 			id: user.id,
 			username: user.username,
 			email: user.email,
-			token: generateToken({ username: user.username, id: user.id })
+			token: generateToken({ username: user.username, _id: user._id })
 		})
 	} else {
 		res.status(401)

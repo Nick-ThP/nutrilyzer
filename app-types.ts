@@ -54,7 +54,7 @@ export interface IDailyLog<MealType> {
 // Modified types
 
 export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {
-	customUpdate(
+	updateAndDeleteIfEmpty(
 		filter: Record<string, any>,
 		update: Record<string, any>,
 		options: Record<string, any>

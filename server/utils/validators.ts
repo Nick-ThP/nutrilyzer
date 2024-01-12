@@ -1,4 +1,15 @@
-import { body, check } from 'express-validator'
+import { body } from 'express-validator'
+
+export const registrationValidator = [
+	body('username').trim().notEmpty().withMessage('userame is required'),
+	body('email').trim().notEmpty().withMessage('email is required'),
+	body('password').trim().notEmpty().withMessage('password is required')
+]
+
+export const loginValidator = [
+	body('email').trim().notEmpty().withMessage('email is required'),
+	body('password').trim().notEmpty().withMessage('password is required')
+]
 
 export const foodItemValidator = [
 	body('name').trim().notEmpty().withMessage('Name is required'),
@@ -10,12 +21,18 @@ export const foodItemValidator = [
 	body('sodium').trim().notEmpty().withMessage('Sodium is required')
 ]
 
-export const dailyLogValidator = [body('date').isISO8601().withMessage('Invalid date format')]
-
-export const mealOnLogValidator = [body('mealType').isIn(['breakfast', 'lunch', 'dinner', 'snacks']).withMessage('Invalid meal type')]
+export const dailyLogValidator = [
+	body('date').isISO8601().withMessage('Invalid date format'),
+	body('meals').isArray({ min: 4, max: 4 }).withMessage('Invalid meals object'),
+	body('meals.breakfast').withMessage('breakfast array is required'),
+	body('meals.lunch').withMessage('lunch array is required'),
+	body('meals.dinner').withMessage('dinner array is required'),
+	body('meals.snacks').withMessage('snacks array is required')
+]
 
 export const mealValidator = [
-	body('name').notEmpty().withMessage('Meal name is required'),
+	body('name').trim().notEmpty().withMessage('Meal name is required'),
 	body('foodEntry').isArray({ min: 1 }).withMessage('Food entry must be an array'),
-	body('grams').isNumeric().withMessage('Grams must be a number')
+	body('foodEntry.foodItem').isMongoId().withMessage('Food item must be an ID'),
+	body('foodEntry.grams').isNumeric().withMessage('Grams must be a number')
 ]

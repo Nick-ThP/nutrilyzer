@@ -1,8 +1,11 @@
-import { validationResult, ValidationChain } from 'express-validator'
+import { ValidationChain, validationResult } from 'express-validator'
+import { ExtendedRequest } from '../../app-types'
 
-export function validateRequest(validator: ValidationChain[]) {
-	return (req, res, next) => {
-		validator.forEach(validation => validation.run(req))
+export function validateRequest(validator: ValidationChain[] | ValidationChain[][]) {
+	return (req: ExtendedRequest, res, next) => {
+		const validationArray = Array.isArray(validator[0]) ? (validator as ValidationChain[][]).flat() : (validator as ValidationChain[])
+
+		validationArray.forEach(validation => validation.run(req))
 
 		const errors = validationResult(req)
 

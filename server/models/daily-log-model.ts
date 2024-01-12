@@ -16,25 +16,29 @@ const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
 			breakfast: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal'
+					ref: 'Meal',
+					required: true
 				}
 			],
 			lunch: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal'
+					ref: 'Meal',
+					required: true
 				}
 			],
 			dinner: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal'
+					ref: 'Meal',
+					required: true
 				}
 			],
 			snacks: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal'
+					ref: 'Meal',
+					required: true
 				}
 			]
 		}
@@ -49,7 +53,7 @@ function isEmptyMeals(meals: ObjectId[][]) {
 }
 
 // Custom static method for updating and handling post-update logic
-dailyLogSchema.statics.customUpdate = async function (
+dailyLogSchema.statics.updateAndDeleteIfEmpty = async function (
 	filter: Record<string, any>,
 	update: Record<string, any>,
 	options: Record<string, any>
@@ -59,7 +63,11 @@ dailyLogSchema.statics.customUpdate = async function (
 
 	// Check if the updated log has empty meals and delete if necessary
 	if (result && isEmptyMeals(result.meals)) {
-		await this.deleteOne({ _id: result._id })
+		const deleteResult = await this.deleteOne({ _id: result._id })
+
+		if (deleteResult.deleteCount === 0) {
+			console.error('something went wrong inside daily log model while trying to delete a log')
+		}
 	}
 
 	return result

@@ -9,20 +9,16 @@ import { ServiceError } from '../utils/service-error'
 // @route POST /api/dailyLogs
 // @access Private
 export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { logId, mealType, mealId } = req.body
+	const { date, meals } = req.body
 	const userId = req.user?._id
 
 	// Add the meal to the specified type (breakfast, lunch, etc.)
-	const update = { $push: { [`meals.${mealType}`]: mealId } }
+	const update = { $push: { date, userId, meals } }
 
-	const log = await DailyLog.findOneAndUpdate({ _id: logId, userId }, update, { new: true, upsert: true })
+	const log = await DailyLog.updateAndDeleteIfEmpty({ _id: userId }, update, { new: true, upsert: true })
 
 	if (!log) {
 		throw new ServiceError('Daily log not found', HTTP_STATUS.SERVER_ERROR)
-	}
-
-	if (log && Object.values(log.meals).every(mealArray => mealArray.length === 0)) {
-		await DailyLog.deleteOne({ _id: log._id })
 	}
 
 	res.status(HTTP_STATUS.OK).json(log)
