@@ -10,7 +10,7 @@ import { ServiceError } from '../utils/service-error'
 // @access Private
 export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 	const { logId, mealType, mealId } = req.body
-	const userId = req.user._id
+	const userId = req.user?._id
 
 	// Add the meal to the specified type (breakfast, lunch, etc.)
 	const update = { $push: { [`meals.${mealType}`]: mealId } }
@@ -18,7 +18,7 @@ export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 	const log = await DailyLog.findOneAndUpdate({ _id: logId, userId }, update, { new: true, upsert: true })
 
 	if (!log) {
-		throw new ServiceError('Daily log not found', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+		throw new ServiceError('Daily log not found', HTTP_STATUS.SERVER_ERROR)
 	}
 
 	if (log && Object.values(log.meals).every(mealArray => mealArray.length === 0)) {
@@ -32,7 +32,7 @@ export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 // @route GET /api/dailyLogs
 // @access Private
 export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
-	const userId = req.user._id
+	const userId = req.user?._id
 	const logs = await DailyLog.find({ userId })
 
 	if (!logs.length) {
@@ -47,7 +47,7 @@ export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
 // @access Private
 export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 	const { logId } = req.params
-	const userId = req.user._id
+	const userId = req.user?._id
 
 	const log = await DailyLog.aggregate([
 		{ $match: { _id: new ObjectId(logId), userId: new ObjectId(userId) } },

@@ -15,6 +15,7 @@ export const dailyLogValidator = [body('date').isISO8601().withMessage('Invalid 
 export const mealOnLogValidator = [body('mealType').isIn(['breakfast', 'lunch', 'dinner', 'snacks']).withMessage('Invalid meal type')]
 
 export const mealValidator = [
-	check('name').notEmpty().withMessage('Meal name is required'),
-	check('foodItems').isArray({ min: 1 }).withMessage('Food items must be an array')
+	body('name').notEmpty().withMessage('Meal name is required'),
+	body('foodEntry').isArray({ min: 1 }).withMessage('Food entry must be an array'),
+	body('grams').isNumeric().withMessage('Grams must be a number')
 ]

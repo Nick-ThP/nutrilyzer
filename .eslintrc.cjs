@@ -16,7 +16,7 @@ module.exports = {
 	parserOptions: {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
-		project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.server.json'],
+		project: ['./tsconfig.client.json', './tsconfig.server.json', './tsconfig.vite.json'],
 		tsconfigRootDir: __dirname
 	},
 	plugins: ['react-refresh', 'node', 'prettier'],
@@ -24,7 +24,7 @@ module.exports = {
 		{
 			files: ['*.ts', '*.tsx'],
 			parserOptions: {
-				project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.server.json']
+				project: ['./tsconfig.client.json', './tsconfig.server.json', './tsconfig.vite.json']
 			}
 		}
 	],
