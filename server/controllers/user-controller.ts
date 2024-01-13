@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import asyncHandler from 'express-async-handler'
-import { ExtendedRequest } from '../../app-types'
+import { ExtendedRequest, IUser } from '../../app-types'
 import { User } from '../models/user-model'
 import { generateToken } from '../utils/generate-token'
 
@@ -9,7 +9,7 @@ import { generateToken } from '../utils/generate-token'
 //@access public
 export const registerUser = asyncHandler(async (req, res) => {
 	// Grab the keys from body object
-	const { username, email, password } = req.body
+	const { username, email, password }: IUser = req.body
 
 	// Check if user is already registered
 	const userAvailable = await User.findOne({ email })
@@ -46,7 +46,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 //@access public
 export const loginUser = asyncHandler(async (req, res) => {
 	// Grab the keys from body object
-	const { email, password } = req.body
+	const { email, password }: Omit<IUser, 'username'> = req.body
 
 	// Check if user's email is registered
 	const user = await User.findOne({ email })
@@ -69,10 +69,10 @@ export const loginUser = asyncHandler(async (req, res) => {
 	}
 })
 
-//@desc Current information about user
+//@desc Information about current user
 //@route GET /api/users/current
 //@access private
 export const currentUser = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Give the user their stored information
+	// Pass down info about current user
 	res.status(200).json(req.user)
 })

@@ -20,14 +20,14 @@ const app: Application = express()
 // Environment variables
 dotenv.config()
 
+// Database connection
+connectDb()
+
 // Helmet for security
 app.use(helmet())
 
 // Rate limiting with a redis server
 app.use(rateLimit(limitOptions))
-
-// Database connection
-connectDb()
 
 // Set up CORS
 app.use(cors(corsOptions))

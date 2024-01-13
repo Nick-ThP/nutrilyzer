@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import { ObjectId } from 'mongodb'
-import { ExtendedRequest } from '../../app-types'
+import { ExtendedRequest, IDailyLog } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { HTTP_STATUS } from '../utils/http-messages'
 import { ServiceError } from '../utils/service-error'
@@ -9,19 +9,30 @@ import { ServiceError } from '../utils/service-error'
 // @route POST /api/dailyLogs
 // @access Private
 export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { date, meals } = req.body
+	const { date, meals }: Omit<IDailyLog<ObjectId>, 'userId'> = req.body
 	const userId = req.user?._id
 
-	// Add the meal to the specified type (breakfast, lunch, etc.)
-	const update = { $push: { date, userId, meals } }
-
-	const log = await DailyLog.updateAndDeleteIfEmpty({ _id: userId }, update, { new: true, upsert: true })
-
-	if (!log) {
-		throw new ServiceError('Daily log not found', HTTP_STATUS.SERVER_ERROR)
+	// Create objects for the update
+	const filter = { date, userId }
+	const update = {
+		$set: { meals },
+		$setOnInsert: { userId, date }
+	}
+	const options = {
+		new: true,
+		upsert: true
 	}
 
-	res.status(HTTP_STATUS.OK).json(log)
+	// Perform the update with upsert option
+	const updateResult = await DailyLog.updateOneAndDeleteIfEmpty(filter, update, options)
+
+	// Check if the operation was successful
+	if (!updateResult) {
+		throw new ServiceError('Error updating or creating daily log', HTTP_STATUS.SERVER_ERROR)
+	}
+
+	// Respond with the updated log information
+	res.status(HTTP_STATUS.OK).json(updateResult)
 })
 
 // @desc Get all daily logs
@@ -46,13 +57,40 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 
 	const log = await DailyLog.aggregate([
-		{ $match: { _id: new ObjectId(logId), userId: new ObjectId(userId) } },
-		// Unwinding each meal type
-		{ $unwind: { path: '$meals.breakfast', preserveNullAndEmptyArrays: true } },
-		{ $unwind: { path: '$meals.lunch', preserveNullAndEmptyArrays: true } },
-		{ $unwind: { path: '$meals.dinner', preserveNullAndEmptyArrays: true } },
-		{ $unwind: { path: '$meals.snacks', preserveNullAndEmptyArrays: true } },
-		// Rest of the aggregation pipeline
+		{
+			$match: {
+				_id: new ObjectId(logId),
+				userId: new ObjectId(userId)
+			}
+		},
+
+		// Start the aggregation by unwinding the mealtimes
+		{
+			$unwind: {
+				path: '$meals.breakfast',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$unwind: {
+				path: '$meals.lunch',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$unwind: {
+				path: '$meals.dinner',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$unwind: {
+				path: '$meals.snacks',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+
+		// Lookup the meals with the id's on the log
 		{
 			$lookup: {
 				from: 'meals',
@@ -85,12 +123,34 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 				as: 'meals.snacksDetails'
 			}
 		},
-		// Unwinding meal details to get individual food items
-		{ $unwind: { path: '$meals.breakfastDetails.foodEntry', preserveNullAndEmptyArrays: true } },
-		{ $unwind: { path: '$meals.lunchDetails.foodEntry', preserveNullAndEmptyArrays: true } },
-		{ $unwind: { path: '$meals.dinnerDetails.foodEntry', preserveNullAndEmptyArrays: true } },
-		{ $unwind: { path: '$meals.snacksDetails.foodEntry', preserveNullAndEmptyArrays: true } },
-		// Lookup for food item details
+
+		// Unwinding the found meals themselves
+		{
+			$unwind: {
+				path: '$meals.breakfastDetails.foodEntry',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$unwind: {
+				path: '$meals.lunchDetails.foodEntry',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$unwind: {
+				path: '$meals.dinnerDetails.foodEntry',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$unwind: {
+				path: '$meals.snacksDetails.foodEntry',
+				preserveNullAndEmptyArrays: true
+			}
+		},
+
+		// Lookup the food details with the id's on the meals
 		{
 			$lookup: {
 				from: 'fooditems',
@@ -123,16 +183,29 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 				as: 'meals.snacksDetails.foodEntry.foodItemDetails'
 			}
 		},
-		// Grouping back the details
+
+		// Grouping everything back together
 		{
 			$group: {
 				_id: '$_id',
-				date: { $first: '$date' },
-				userId: { $first: '$userId' },
-				breakfast: { $push: '$meals.breakfastDetails' },
-				lunch: { $push: '$meals.lunchDetails' },
-				dinner: { $push: '$meals.dinnerDetails' },
-				snacks: { $push: '$meals.snacksDetails' }
+				date: {
+					$first: '$date'
+				},
+				userId: {
+					$first: '$userId'
+				},
+				breakfast: {
+					$push: '$meals.breakfastDetails'
+				},
+				lunch: {
+					$push: '$meals.lunchDetails'
+				},
+				dinner: {
+					$push: '$meals.dinnerDetails'
+				},
+				snacks: {
+					$push: '$meals.snacksDetails'
+				}
 			}
 		}
 	])

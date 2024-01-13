@@ -1,6 +1,6 @@
 import { Request } from 'express'
 import { ObjectId } from 'mongodb'
-import { Date, Model } from 'mongoose'
+import { Date, Model, UpdateWriteOpResult } from 'mongoose'
 
 // Core application types
 
@@ -11,15 +11,19 @@ export interface IUser {
 	password: string
 }
 
-export interface IFoodItem {
-	_id?: ObjectId
-	name: string
+export interface INutrition {
 	calories: number
 	carbs: string
 	fiber: string
 	fat: string
 	protein: string
 	sodium: string
+}
+
+export interface IFoodItem {
+	_id?: ObjectId
+	name: string
+	nutrition: INutrition
 	isDefault: boolean
 	userId?: ObjectId
 	hiddenByUsers: ObjectId[]
@@ -54,11 +58,17 @@ export interface IDailyLog<MealType> {
 // Modified types
 
 export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {
-	updateAndDeleteIfEmpty(
-		filter: Record<string, any>,
-		update: Record<string, any>,
-		options: Record<string, any>
+	updateOneAndDeleteIfEmpty(
+		filter?: Record<string, any>,
+		update?: Record<string, any>,
+		options?: Record<string, any>
 	): Promise<IDailyLog<ObjectId> | null>
+
+	updateManyAndDeleteIfEmpty(
+		filter?: Record<string, any>,
+		update?: Record<string, any>,
+		options?: Record<string, any>
+	): Promise<UpdateWriteOpResult>
 }
 
 export interface ExtendedRequest extends Request {

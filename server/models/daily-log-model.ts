@@ -1,5 +1,6 @@
 import mongoose, { ObjectId, Schema } from 'mongoose'
 import { IDailyLog, IDailyLogModel } from '../../app-types'
+import { isLogMealsEmpty } from '../utils/helpers'
 
 const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
 	{
@@ -16,29 +17,25 @@ const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
 			breakfast: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal',
-					required: true
+					ref: 'Meal'
 				}
 			],
 			lunch: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal',
-					required: true
+					ref: 'Meal'
 				}
 			],
 			dinner: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal',
-					required: true
+					ref: 'Meal'
 				}
 			],
 			snacks: [
 				{
 					type: Schema.Types.ObjectId,
-					ref: 'Meal',
-					required: true
+					ref: 'Meal'
 				}
 			]
 		}
@@ -48,29 +45,61 @@ const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
 	}
 )
 
-function isEmptyMeals(meals: ObjectId[][]) {
-	return Object.values(meals).every(mealArray => mealArray.length === 0)
-}
-
-// Custom static method for updating and handling post-update logic
-dailyLogSchema.statics.updateAndDeleteIfEmpty = async function (
+// Custom static method for updating and handling post-update logic for a single log
+dailyLogSchema.statics.updateOneAndDeleteIfEmpty = async function (
 	filter: Record<string, any>,
 	update: Record<string, any>,
 	options: Record<string, any>
 ) {
-	// Perform the update
-	const result = await this.findOneAndUpdate(filter, update, options)
+	try {
+		// Perform the update
+		const updatedLog = await this.findOneAndUpdate(filter, update, options)
 
-	// Check if the updated log has empty meals and delete if necessary
-	if (result && isEmptyMeals(result.meals)) {
-		const deleteResult = await this.deleteOne({ _id: result._id })
+		// Check if the update was successful and if the updated log has empty meals
+		if (updatedLog && isLogMealsEmpty(updatedLog.meals)) {
+			const deleteResult = await this.deleteOne({ _id: updatedLog._id })
 
-		if (deleteResult.deleteCount === 0) {
-			console.error('something went wrong inside daily log model while trying to delete a log')
+			if (deleteResult.deletedCount === 0) {
+				console.error(`Failed to delete ${updatedLog._id} after finding it empty`)
+			}
 		}
-	}
 
-	return result
+		return updatedLog
+	} catch (error) {
+		console.error('Error in singleUpdateAndDeleteIfEmpty:', error)
+		throw error
+	}
+}
+
+// Custom static method for updating and handling post-update logic in bulk
+dailyLogSchema.statics.updateManyAndDeleteIfEmpty = async function (
+	filter: Record<string, any>,
+	update: Record<string, any>,
+	options: Record<string, any>
+) {
+	try {
+		// Perform the bulk update
+		const updatedLogs = await this.updateMany(filter, update, options)
+
+		// Find all logs that match the filter after the update
+		const foundLogs = await this.find(filter)
+
+		// Check each log to see if it should be deleted
+		for (const log of foundLogs) {
+			if (isLogMealsEmpty(log.meals)) {
+				const deleteResult = await this.deleteOne({ _id: log._id })
+
+				if (deleteResult.deletedCount === 0) {
+					console.error(`Failed to delete ${log._id} after finding it empty`)
+				}
+			}
+		}
+
+		return updatedLogs
+	} catch (error) {
+		console.error('Error in bulkUpdateAndDeleteIfEmpty:', error)
+		throw error
+	}
 }
 
 export const DailyLog = mongoose.model<IDailyLog<ObjectId>, IDailyLogModel>('DailyLog', dailyLogSchema)

@@ -1,9 +1,8 @@
 import asyncHandler from 'express-async-handler'
-import { ObjectId } from 'mongodb'
 import { ExtendedRequest } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { Meal } from '../models/meal-model'
-import { constants } from '../utils/http-messages'
+import { HTTP_STATUS } from '../utils/http-messages'
 import { ServiceError } from '../utils/service-error'
 
 // @desc Create a new meal
@@ -31,7 +30,7 @@ export const getMealById = asyncHandler(async (req: ExtendedRequest, res) => {
 
 	const meal = await Meal.findById(id)
 	if (!meal) {
-		throw new ServiceError('Meal not found', constants.NOT_FOUND)
+		throw new ServiceError('Meal not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(200).json(meal)
@@ -46,7 +45,7 @@ export const updateMeal = asyncHandler(async (req, res) => {
 
 	const meal = await Meal.findByIdAndUpdate(id, updateData, { new: true })
 	if (!meal) {
-		throw new ServiceError('Meal not found', constants.NOT_FOUND)
+		throw new ServiceError('Meal not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(200).json(meal)
@@ -71,7 +70,7 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 
 	const meal = await Meal.findById(id)
 	if (!meal) {
-		throw new ServiceError('Meal not found', constants.NOT_FOUND)
+		throw new ServiceError('Meal not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	// If meal is default, hide it for the user instead of deleting
@@ -82,7 +81,9 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 		}
 	} else {
 		await Meal.findByIdAndDelete(id)
-		await updateDailyLogsForMealDeletion(id, userId) // Call the utility function to update daily logs
+
+		// Use the new bulk method for updating and deleting daily logs
+		await DailyLog.bulkUpdateAndDeleteIfEmpty(userId, id)
 	}
 
 	res.status(200).json({ message: 'Meal deleted successfully' })
@@ -90,13 +91,17 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 
 // Utility function to update daily logs for a specific user upon meal deletion
 const updateDailyLogsForMealDeletion = async (mealId, userId) => {
-	const dailyLogs = await DailyLog.find({ userId })
+	try {
+		const mealTimes = ['breakfast', 'lunch', 'dinner', 'snack']
 
-	dailyLogs.forEach(async log => {
-		;['breakfast', 'lunch', 'dinner', 'snack'].forEach(mealTime => {
-			log.meals[mealTime] = log.meals[mealTime].filter(id => id.toString() !== mealId.toString())
-		})
-
-		await log.save()
-	})
+		// Use bulk update operation
+		await DailyLog.updateMany(
+			{ userId },
+			mealTimes.map(mealTime => ({
+				$pull: { [`meals.${mealTime}`]: mealIdString }
+			}))
+		)
+	} catch (error) {
+		console.error('Error updating daily logs for meal deletion:', error)
+	}
 }

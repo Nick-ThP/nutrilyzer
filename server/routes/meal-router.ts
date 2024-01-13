@@ -1,11 +1,11 @@
 import express from 'express'
 import { createMeal, deleteMeal, getMeals, updateMeal } from '../controllers/meal-controller'
-import { authMiddleware } from '../middlewares/auth-middleware'
-import { validationErrorsMiddleware } from '../middlewares/validation-middleware'
-import { mealValidator } from '../validators/meal-validator'
+import { authenticate } from '../middlewares/auth-middleware'
+import { validateRequest } from '../middlewares/validation-middleware'
+import { mealValidator } from '../utils/validators'
 
 export const mealRouter = express.Router()
 
-mealRouter.route('/').get(authMiddleware, getMeals).post(authMiddleware, mealValidator, validationErrorsMiddleware, createMeal)
+mealRouter.route('/').get(authenticate, getMeals).post(authenticate, validateRequest(mealValidator), createMeal)
 
-mealRouter.route('/:mealId').put(authMiddleware, mealValidator, validationErrorsMiddleware, updateMeal).delete(authMiddleware, deleteMeal)
+mealRouter.route('/:mealId').put(authenticate, validateRequest(mealValidator), updateMeal).delete(authenticate, deleteMeal)
