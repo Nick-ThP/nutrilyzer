@@ -1,6 +1,6 @@
 import mongoose, { ObjectId, Schema } from 'mongoose'
 import { IDailyLog, IDailyLogModel } from '../../app-types'
-import { isLogMealsEmpty } from '../utils/helpers'
+import { isLogMealsEmpty } from '../utils/helper-functions'
 
 const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
 	{

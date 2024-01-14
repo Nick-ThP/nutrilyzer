@@ -1,16 +1,17 @@
 import asyncHandler from 'express-async-handler'
 import jwt from 'jsonwebtoken'
 import { ExtendedRequest } from '../../app-types'
+import { AsyncHandlerError } from '../utils/async-handler-error'
+import { HTTP_STATUS } from '../utils/http-messages'
 
 export const authenticate = asyncHandler(async (req: ExtendedRequest, res, next) => {
 	// Initialize variables
-	let token: string
+	let token
 	let authHeader = req.headers.authorization
 
 	// Check if there's something wrong with the request header
 	if (!authHeader || !authHeader.startsWith('Bearer')) {
-		res.status(401)
-		throw new Error('User is not authorized or token is missing in request')
+		throw new AsyncHandlerError('User is not authorized or token is missing in request', HTTP_STATUS.UNAUTHORIZED)
 	}
 
 	// Format token correctly
@@ -20,14 +21,12 @@ export const authenticate = asyncHandler(async (req: ExtendedRequest, res, next)
 	jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
 		// Check if user is authorized
 		if (err) {
-			res.status(401)
-			throw new Error('User is not authorized')
+			throw new AsyncHandlerError('User is not authorized', HTTP_STATUS.UNAUTHORIZED)
 		}
 
 		// Check if payload is good
 		if (!decoded || typeof decoded === 'string') {
-			res.status(401)
-			throw new Error('There is something wrong with the payload')
+			throw new AsyncHandlerError('There is something wrong with the payload', HTTP_STATUS.UNAUTHORIZED)
 		}
 
 		// Assign decoded user to request

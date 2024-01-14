@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 import { ExtendedRequest, IDailyLog } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { HTTP_STATUS } from '../utils/http-messages'
-import { ServiceError } from '../utils/service-error'
+import { AsyncHandlerError } from '../utils/service-error'
 
 // @desc Update meals on daily log
 // @route POST /api/dailyLogs
@@ -28,7 +28,7 @@ export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 
 	// Check if the operation was successful
 	if (!updateResult) {
-		throw new ServiceError('Error updating or creating daily log', HTTP_STATUS.SERVER_ERROR)
+		throw new AsyncHandlerError('Error updating or creating daily log', HTTP_STATUS.SERVER_ERROR)
 	}
 
 	// Respond with the updated log information
@@ -43,7 +43,7 @@ export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
 	const logs = await DailyLog.find({ userId })
 
 	if (!logs.length) {
-		throw new ServiceError('Daily logs not found', HTTP_STATUS.NOT_FOUND)
+		throw new AsyncHandlerError('Daily logs not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(HTTP_STATUS.OK).json(logs)
@@ -211,7 +211,7 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 	])
 
 	if (!log || !log.length) {
-		throw new ServiceError('Daily log not found', HTTP_STATUS.NOT_FOUND)
+		throw new AsyncHandlerError('Daily log not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(HTTP_STATUS.OK).json(log[0])

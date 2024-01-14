@@ -1,36 +1,34 @@
 import asyncHandler from 'express-async-handler'
+import mongoose from 'mongoose'
 import { ExtendedRequest } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { Meal } from '../models/meal-model'
+import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
-import { ServiceError } from '../utils/service-error'
 
 // @desc Create a new meal
 // @route POST /api/meals
-// @access private
+// @access Private
 export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { name, foodItems, userId } = req.body
+	const mealData = { ...req.body, userId: req.user?._id }
 
-	const newMeal = new Meal({
-		name,
-		foodItems,
-		userId,
-		isDefault: false
-	})
+	const newMeal = await Meal.create(mealData)
+	if (!newMeal) {
+		throw new AsyncHandlerError('Meal could not be created', HTTP_STATUS.SERVER_ERROR)
+	}
 
-	await newMeal.save()
 	res.status(201).json(newMeal)
 })
 
 // @desc Get a single meal by ID
 // @route GET /api/meals/:id
-// @access private
+// @access Private
 export const getMealById = asyncHandler(async (req: ExtendedRequest, res) => {
 	const { id } = req.params
 
-	const meal = await Meal.findById(id)
+	const meal = await Meal.findOne({ _id: id })
 	if (!meal) {
-		throw new ServiceError('Meal not found', HTTP_STATUS.NOT_FOUND)
+		throw new AsyncHandlerError('Meal not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(200).json(meal)
@@ -38,70 +36,77 @@ export const getMealById = asyncHandler(async (req: ExtendedRequest, res) => {
 
 // @desc Update a meal
 // @route PUT /api/meals/:id
-// @access private
-export const updateMeal = asyncHandler(async (req, res) => {
+// @access Private
+export const updateMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const { id } = req.params
-	const updateData = req.body
 
-	const meal = await Meal.findByIdAndUpdate(id, updateData, { new: true })
+	const meal = await Meal.findOneAndUpdate({ _id: id, userId: req.user?._id }, ...req.body, { new: true })
 	if (!meal) {
-		throw new ServiceError('Meal not found', HTTP_STATUS.NOT_FOUND)
+		throw new AsyncHandlerError('Meal not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(200).json(meal)
 })
 
-// @desc Get multiple meals by IDs
-// @route POST /api/meals/byIds
-// @access private
-export const getMealsByIds = asyncHandler(async (req, res) => {
+// @desc Delete a meal and update related daily logs
+// @route DELETE /api/meals/:id
+// @access Private
+export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
+	const session = await mongoose.startSession()
+	session.startTransaction()
+
+	try {
+		const { id } = req.params
+		const userId = req.user?._id
+
+		// Find the meal
+		const meal = await Meal.findOne({ _id: id, userId }).session(session)
+
+		if (!meal) {
+			throw new AsyncHandlerError('Meal not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
+		}
+
+		// Check if it's default or not
+		if (meal.isDefault && userId) {
+			// If isDefault is true, hide the meal by adding the user ID to hiddenByUsers
+			meal.hiddenByUsers.push(userId)
+			await meal.save({ session })
+		} else {
+			// If isDefault is false, delete the meal
+			await Meal.findByIdAndDelete(id, { session })
+		}
+
+		// Now, update or delete associated DailyLogs for all mealtimes
+		const mealtimes = ['breakfast', 'lunch', 'dinner', 'snacks']
+		for (const mealtime of mealtimes) {
+			await DailyLog.updateManyAndDeleteIfEmpty(
+				{ [`meals.${mealtime}`]: id, userId },
+				{ $pull: { [`meals.${mealtime}`]: id } },
+				{ session }
+			)
+		}
+
+		// Commit the transaction
+		await session.commitTransaction()
+		res.status(200).json({ message: 'Meal and related data processed successfully' })
+	} catch (error) {
+		// If an error occurs, abort the transaction
+		await session.abortTransaction()
+		throw new AsyncHandlerError(error.message, HTTP_STATUS.SERVER_ERROR)
+	} finally {
+		// End the session
+		session.endSession()
+	}
+})
+
+// Get multiple meals by IDs
+export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
 	const { mealIds } = req.body
 
-	const meals = await Meal.find({ _id: { $in: mealIds } })
+	const meals = await Meal.find({ _id: { $in: mealIds }, userId: req.user?._id })
+	if (!meals.length) {
+		throw new AsyncHandlerError('Meals not found', HTTP_STATUS.NOT_FOUND)
+	}
+
 	res.status(200).json(meals)
 })
-
-// @desc Delete a meal
-// @route DELETE /api/meals/:id
-// @access private
-export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { id } = req.params
-	const userId = req.user._id
-
-	const meal = await Meal.findById(id)
-	if (!meal) {
-		throw new ServiceError('Meal not found', HTTP_STATUS.NOT_FOUND)
-	}
-
-	// If meal is default, hide it for the user instead of deleting
-	if (meal.isDefault) {
-		if (!meal.hiddenByUsers.includes(userId)) {
-			meal.hiddenByUsers.push(userId)
-			await meal.save()
-		}
-	} else {
-		await Meal.findByIdAndDelete(id)
-
-		// Use the new bulk method for updating and deleting daily logs
-		await DailyLog.bulkUpdateAndDeleteIfEmpty(userId, id)
-	}
-
-	res.status(200).json({ message: 'Meal deleted successfully' })
-})
-
-// Utility function to update daily logs for a specific user upon meal deletion
-const updateDailyLogsForMealDeletion = async (mealId, userId) => {
-	try {
-		const mealTimes = ['breakfast', 'lunch', 'dinner', 'snack']
-
-		// Use bulk update operation
-		await DailyLog.updateMany(
-			{ userId },
-			mealTimes.map(mealTime => ({
-				$pull: { [`meals.${mealTime}`]: mealIdString }
-			}))
-		)
-	} catch (error) {
-		console.error('Error updating daily logs for meal deletion:', error)
-	}
-}

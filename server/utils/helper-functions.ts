@@ -1,7 +1,8 @@
+import jwt from 'jsonwebtoken'
 import { ObjectId } from 'mongodb'
-import { INutrition } from '../../app-types'
+import { INutrition, IUser } from '../../app-types'
 
-export function isLogMealsEmpty(meals: ObjectId[][]) {
+export function isLoggedMealsEmpty(meals: ObjectId[][]) {
 	return Object.values(meals).every(mealArray => mealArray.length === 0)
 }
 
@@ -19,4 +20,8 @@ export const isValidNutritionObject = (value: INutrition) => {
 	const keys = Object.keys(value)
 
 	return keys.every(key => expectedKeys.includes(key)) && keys.length === expectedKeys.length
+}
+
+export const generateAuthToken = (user: Omit<IUser, 'email' | 'password'>) => {
+	return jwt.sign({ user }, process.env.JWT_SECRET as string, { expiresIn: '30d' })
 }

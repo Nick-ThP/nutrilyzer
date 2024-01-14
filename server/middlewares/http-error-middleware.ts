@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { HTTP_STATUS } from '../utils/http-messages'
-import { ServiceError } from '../utils/service-error'
+import { AsyncHandlerError } from '../utils/service-error'
 
 export const createHttpErrorResponse = (err: Error, req: Request, res: Response) => {
-	const statusCode = err instanceof ServiceError ? err.statusCode : HTTP_STATUS.SERVER_ERROR
+	const statusCode = err instanceof AsyncHandlerError ? err.statusCode : HTTP_STATUS.SERVER_ERROR
 
 	switch (statusCode) {
 		case HTTP_STATUS.NOT_FOUND:

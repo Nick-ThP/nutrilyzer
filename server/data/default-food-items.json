@@ -1,83 +1,47 @@
 [
 	{
 		"name": "Pasta",
-		"calories": 131,
-		"carbs": "25g",
-		"fiber": "1.3g",
-		"fat": "1.1g",
-		"protein": "5g",
-		"sodium": "6mg"
+		"isDefault": true,
+		"nutrition": { "calories": 131, "carbs": "25g", "fiber": "1.3g", "fat": "1.1g", "protein": "5g", "sodium": "6mg" }
 	},
 	{
 		"name": "Chicken Breast",
-		"calories": 165,
-		"carbs": "0g",
-		"fiber": "0g",
-		"fat": "3.6g",
-		"protein": "31g",
-		"sodium": "74mg"
+		"isDefault": true,
+		"nutrition": { "calories": 165, "carbs": "0g", "fiber": "0g", "fat": "3.6g", "protein": "31g", "sodium": "74mg" }
 	},
 	{
 		"name": "Salmon",
-		"calories": 208,
-		"carbs": "0g",
-		"fiber": "0g",
-		"fat": "13g",
-		"protein": "20g",
-		"sodium": "59mg"
+		"isDefault": true,
+		"nutrition": { "calories": 208, "carbs": "0g", "fiber": "0g", "fat": "13g", "protein": "20g", "sodium": "59mg" }
 	},
 	{
 		"name": "Eggs",
-		"calories": 155,
-		"carbs": "1.1g",
-		"fiber": "0g",
-		"fat": "11g",
-		"protein": "13g",
-		"sodium": "124mg"
+		"isDefault": true,
+		"nutrition": { "calories": 155, "carbs": "1.1g", "fiber": "0g", "fat": "11g", "protein": "13g", "sodium": "124mg" }
 	},
 	{
 		"name": "Almonds",
-		"calories": 579,
-		"carbs": "22g",
-		"fiber": "12.5g",
-		"fat": "50g",
-		"protein": "21g",
-		"sodium": "1mg"
+		"isDefault": true,
+		"nutrition": { "calories": 579, "carbs": "22g", "fiber": "12.5g", "fat": "50g", "protein": "21g", "sodium": "1mg" }
 	},
 	{
 		"name": "Oats",
-		"calories": 389,
-		"carbs": "66g",
-		"fiber": "11g",
-		"fat": "7g",
-		"protein": "17g",
-		"sodium": "2mg"
+		"isDefault": true,
+		"nutrition": { "calories": 389, "carbs": "66g", "fiber": "11g", "fat": "7g", "protein": "17g", "sodium": "2mg" }
 	},
 	{
 		"name": "Yogurt",
-		"calories": 59,
-		"carbs": "3.6g",
-		"fiber": "0g",
-		"fat": "0.4g",
-		"protein": "10g",
-		"sodium": "36mg"
+		"isDefault": true,
+		"nutrition": { "calories": 59, "carbs": "3.6g", "fiber": "0g", "fat": "0.4g", "protein": "10g", "sodium": "36mg" }
 	},
 	{
 		"name": "Broccoli",
-		"calories": 34,
-		"carbs": "7g",
-		"fiber": "2.6g",
-		"fat": "0.4g",
-		"protein": "2.8g",
-		"sodium": "33mg"
+		"isDefault": true,
+		"nutrition": { "calories": 34, "carbs": "7g", "fiber": "2.6g", "fat": "0.4g", "protein": "2.8g", "sodium": "33mg" }
 	},
 	{
 		"name": "Spinach",
-		"calories": 23,
-		"carbs": "3.6g",
-		"fiber": "2.2g",
-		"fat": "0.4g",
-		"protein": "2.9g",
-		"sodium": "79mg"
+		"isDefault": true,
+		"nutrition": { "calories": 23, "carbs": "3.6g", "fiber": "2.2g", "fat": "0.4g", "protein": "2.9g", "sodium": "79mg" }
 	}
 ]

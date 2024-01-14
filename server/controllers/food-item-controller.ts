@@ -4,20 +4,20 @@ import { ExtendedRequest } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { FoodItem } from '../models/food-item-model'
 import { Meal } from '../models/meal-model'
+import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
-import { ServiceError } from '../utils/service-error'
 
-// @desc Get names and IDs of all food items for a user
+// @desc Get all food items for a user
 // @route GET /api/foodItems
 // @access Private
-export const getAllFoodItemNames = asyncHandler(async (req: ExtendedRequest, res) => {
+export const getAllFoodItems = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 
-	// Check if the user has at least one food item
-	const foodItems = await FoodItem.find({ userId }).select('name _id')
+	// Check if the user has at least one food item available to them
+	const foodItems = await FoodItem.find({ $or: [{ userId }, { isDefault: true }] })
 
-	if (!foodItems || foodItems.length === 0) {
-		throw new ServiceError('No food items found for the user', HTTP_STATUS.NOT_FOUND)
+	if (foodItems.length === 0) {
+		throw new AsyncHandlerError('No food items found for the user', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(200).json(foodItems)
@@ -34,7 +34,7 @@ export const getFoodItemById = asyncHandler(async (req: ExtendedRequest, res) =>
 	const foodItem = await FoodItem.findOne({ _id: id, userId })
 
 	if (!foodItem) {
-		throw new ServiceError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
+		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(200).json(foodItem)
@@ -45,10 +45,15 @@ export const getFoodItemById = asyncHandler(async (req: ExtendedRequest, res) =>
 // @access Private
 export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const foodItemData = { ...req.body, userId }
+	const foodItemData = { ...req.body, userId, isDefault: false }
 
 	// Create a new food item
 	const foodItem = await FoodItem.create(foodItemData)
+
+	if (!foodItem) {
+		throw new AsyncHandlerError('Food item could no be created', HTTP_STATUS.SERVER_ERROR)
+	}
+
 	res.status(201).json(foodItem)
 })
 
@@ -64,13 +69,13 @@ export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 	const foodItem = await FoodItem.findOneAndUpdate({ _id: id, userId }, updateData, { new: true })
 
 	if (!foodItem) {
-		throw new ServiceError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
+		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(200).json(foodItem)
 })
 
-// @desc Delete a food item and update related meals and daily logs
+/// @desc Delete a food item and update related meals and daily logs
 // @route DELETE /api/foodItems/:foodItemId
 // @access Private
 export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
@@ -81,46 +86,57 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 		const { foodItemId } = req.params
 		const userId = req.user?._id
 
-		// Check if the food item exists and belongs to the user
-		const foodItem = await FoodItem.findOne({ _id: foodItemId, userId })
+		// Find the food item
+		const foodItem = await FoodItem.findOne({ _id: foodItemId, userId }).session(session)
 
 		if (!foodItem) {
-			throw new ServiceError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
+			throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 		}
 
-		// Delete the food item
-		await FoodItem.findByIdAndDelete(foodItemId, { session })
-
-		// Find and update meals that include the deleted food item
-		const mealsToUpdate = await Meal.find(
-			{
-				'foodEntry.foodItem': foodItemId,
-				userId: userId
-			},
-			null,
-			{ session }
-		)
-
-		const mealIdsToUpdate = mealsToUpdate.map(meal => meal._id)
-
-		for (const mealId of mealIdsToUpdate) {
-			await Meal.updateOne({ _id: mealId }, { $pull: { foodEntry: { foodItem: foodItemId } } }, { session })
+		// Check if it's default or not
+		if (foodItem.isDefault && userId) {
+			// If isDefault is true, hide the food item by adding the user ID to hiddenByUsers
+			foodItem.hiddenByUsers.push(userId)
+			await foodItem.save({ session })
+		} else {
+			// If isDefault is false, delete the food item
+			await FoodItem.findByIdAndDelete(foodItemId, { session })
 		}
 
-		// Update Daily Logs that reference any updated meals
-		await DailyLog.updateMany(
-			{ 'meals.foodItem': foodItemId, userId: userId },
-			{ $pull: { 'meals.$[meal].foodEntry': { foodItem: foodItemId } } },
-			{ arrayFilters: [{ 'meal.foodItem': foodItemId }], session }
-		)
+		// Now, update or delete associated Meals
+		const mealsToUpdateOrDelete = await Meal.find({ 'foodEntry.foodItem': foodItemId, userId }, null, { session })
+
+		for (const meal of mealsToUpdateOrDelete) {
+			if (foodItem.isDefault && userId) {
+				// If isDefault is true, hide the meal by adding the user ID to hiddenByUsers
+				meal.hiddenByUsers.push(userId)
+				await meal.save({ session })
+			} else {
+				// If isDefault is false, delete the meal
+				await Meal.findByIdAndDelete(meal._id, { session })
+			}
+		}
+
+		// Now, update or delete associated DailyLogs for all mealtimes
+		const mealIdsToDelete = mealsToUpdateOrDelete.map(meal => meal._id)
+
+		const mealtimes = ['breakfast', 'lunch', 'dinner', 'snacks']
+
+		for (const mealtime of mealtimes) {
+			await DailyLog.updateManyAndDeleteIfEmpty(
+				{ [`meals.${mealtime}`]: { $in: mealIdsToDelete }, userId: userId },
+				{ $pull: { [`meals.${mealtime}`]: { $in: mealIdsToDelete } } },
+				{ session }
+			)
+		}
 
 		// Commit the transaction
 		await session.commitTransaction()
-		res.status(200).json({ message: 'Food item and related data deleted successfully' })
+		res.status(200).json({ message: 'Food item and related data processed successfully' })
 	} catch (error) {
 		// If an error occurs, abort the transaction
 		await session.abortTransaction()
-		throw new ServiceError(error.message, HTTP_STATUS.SERVER_ERROR)
+		throw new AsyncHandlerError(error.message, HTTP_STATUS.SERVER_ERROR)
 	} finally {
 		// End the session
 		session.endSession()
