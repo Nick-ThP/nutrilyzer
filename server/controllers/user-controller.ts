@@ -2,7 +2,9 @@ import bcrypt from 'bcrypt'
 import asyncHandler from 'express-async-handler'
 import { ExtendedRequest, IUser } from '../../app-types'
 import { User } from '../models/user-model'
-import { generateToken } from '../utils/generate-token'
+import { AsyncHandlerError } from '../utils/async-handler-error'
+import { generateAuthToken } from '../utils/helper-functions'
+import { HTTP_STATUS } from '../utils/http-messages'
 
 //@desc Register a user
 //@route POST /api/users/register
@@ -14,8 +16,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 	// Check if user is already registered
 	const userAvailable = await User.findOne({ email })
 	if (userAvailable) {
-		res.status(400)
-		throw new Error('User is already registered')
+		throw new AsyncHandlerError('User is already registered', HTTP_STATUS.BAD_REQUEST)
 	}
 
 	// Hash password and create user in database
@@ -28,16 +29,15 @@ export const registerUser = asyncHandler(async (req, res) => {
 
 	// Check if user creation was successful
 	if (!user) {
-		res.status(400)
-		throw new Error('User data is not valid')
+		throw new AsyncHandlerError('User data is not valid', HTTP_STATUS.BAD_REQUEST)
 	}
 
 	// Send a response with new user object including token
-	res.status(201).json({
+	res.status(HTTP_STATUS.CREATED).json({
 		_id: user._id,
 		username: user.username,
 		email: user.email,
-		token: generateToken({ username, _id: user._id })
+		token: generateAuthToken({ username, _id: user._id })
 	})
 })
 
@@ -51,21 +51,20 @@ export const loginUser = asyncHandler(async (req, res) => {
 	// Check if user's email is registered
 	const user = await User.findOne({ email })
 	if (!user) {
-		res.status(400)
-		throw new Error('User does not exist')
+		throw new AsyncHandlerError('User does not exist', HTTP_STATUS.BAD_REQUEST)
 	}
 
 	// Compare user's password with hashed and create a token
-	if (user && (await bcrypt.compare(password, user.password))) {
-		res.status(200).json({
+	const isValidPassword = await bcrypt.compare(password, user.password)
+	if (user && isValidPassword) {
+		res.status(HTTP_STATUS.OK).json({
 			id: user.id,
 			username: user.username,
 			email: user.email,
-			token: generateToken({ username: user.username, _id: user._id })
+			token: generateAuthToken({ username: user.username, _id: user._id })
 		})
 	} else {
-		res.status(401)
-		throw new Error('Password is not valid')
+		throw new AsyncHandlerError('Password is not valid', HTTP_STATUS.UNAUTHORIZED)
 	}
 })
 
@@ -74,5 +73,5 @@ export const loginUser = asyncHandler(async (req, res) => {
 //@access private
 export const currentUser = asyncHandler(async (req: ExtendedRequest, res) => {
 	// Pass down info about current user
-	res.status(200).json(req.user)
+	res.status(HTTP_STATUS.OK).json(req.user)
 })

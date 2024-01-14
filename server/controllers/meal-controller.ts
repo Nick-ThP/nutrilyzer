@@ -17,13 +17,13 @@ export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 		throw new AsyncHandlerError('Meal could not be created', HTTP_STATUS.SERVER_ERROR)
 	}
 
-	res.status(201).json(newMeal)
+	res.status(HTTP_STATUS.CREATED).json(newMeal)
 })
 
 // @desc Get a single meal by ID
 // @route GET /api/meals/:id
 // @access Private
-export const getMealById = asyncHandler(async (req: ExtendedRequest, res) => {
+export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res) => {
 	const { id } = req.params
 
 	const meal = await Meal.findOne({ _id: id })
@@ -31,7 +31,7 @@ export const getMealById = asyncHandler(async (req: ExtendedRequest, res) => {
 		throw new AsyncHandlerError('Meal not found', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(200).json(meal)
+	res.status(HTTP_STATUS.OK).json(meal)
 })
 
 // @desc Update a meal
@@ -45,7 +45,7 @@ export const updateMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 		throw new AsyncHandlerError('Meal not found', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(200).json(meal)
+	res.status(HTTP_STATUS.OK).json(meal)
 })
 
 // @desc Delete a meal and update related daily logs
@@ -88,7 +88,7 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 
 		// Commit the transaction
 		await session.commitTransaction()
-		res.status(200).json({ message: 'Meal and related data processed successfully' })
+		res.status(HTTP_STATUS.OK).json({ message: 'Meal and related data processed successfully' })
 	} catch (error) {
 		// If an error occurs, abort the transaction
 		await session.abortTransaction()
@@ -108,5 +108,5 @@ export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
 		throw new AsyncHandlerError('Meals not found', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(200).json(meals)
+	res.status(HTTP_STATUS.OK).json(meals)
 })

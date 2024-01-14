@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 import { ExtendedRequest, IDailyLog } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { HTTP_STATUS } from '../utils/http-messages'
-import { AsyncHandlerError } from '../utils/service-error'
+import { AsyncHandlerError } from '../utils/async-handler-error'
 
 // @desc Update meals on daily log
 // @route POST /api/dailyLogs

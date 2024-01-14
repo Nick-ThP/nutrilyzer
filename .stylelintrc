@@ -1,17 +1,24 @@
 {
 	"extends": ["stylelint-config-recommended", "stylelint-config-standard"],
 	"rules": {
-		"at-rule-no-unknown": [
-			true,
-			{
-				"ignoreAtRules": ["tailwind", "apply", "variants", "responsive", "screen"]
-			}
-		],
+		"at-rule-no-unknown": null,
 		"rule-empty-line-before": [
 			"always-multi-line",
 			{
 				"except": ["first-nested"],
 				"ignore": ["after-comment"]
+			}
+		],
+		"selector-pseudo-class-no-unknown": [
+			true,
+			{
+				"ignorePseudoClasses": ["global", "local"]
+			}
+		],
+		"property-no-unknown": [
+			true,
+			{
+				"ignoreProperties": ["composes"]
 			}
 		]
 	}

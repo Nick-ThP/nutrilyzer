@@ -1,5 +1,5 @@
 import { body } from 'express-validator'
-import { hasRequiredMealTimes, isValidMealArray, isValidNutritionObject } from './helpers'
+import { hasRequiredMealTimes, isValidMealArray, isValidNutritionObject } from './helper-functions'
 
 export const registrationValidator = [
 	body('username').trim().notEmpty().withMessage('userame is required'),

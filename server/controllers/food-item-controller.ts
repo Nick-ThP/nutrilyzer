@@ -20,7 +20,7 @@ export const getAllFoodItems = asyncHandler(async (req: ExtendedRequest, res) =>
 		throw new AsyncHandlerError('No food items found for the user', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(200).json(foodItems)
+	res.status(HTTP_STATUS.OK).json(foodItems)
 })
 
 // @desc Get a single food item by ID
@@ -37,7 +37,7 @@ export const getFoodItemById = asyncHandler(async (req: ExtendedRequest, res) =>
 		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(200).json(foodItem)
+	res.status(HTTP_STATUS.OK).json(foodItem)
 })
 
 // @desc Create a new food item
@@ -54,7 +54,7 @@ export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 		throw new AsyncHandlerError('Food item could no be created', HTTP_STATUS.SERVER_ERROR)
 	}
 
-	res.status(201).json(foodItem)
+	res.status(HTTP_STATUS.CREATED).json(foodItem)
 })
 
 // @desc Update a food item
@@ -72,7 +72,7 @@ export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(200).json(foodItem)
+	res.status(HTTP_STATUS.OK).json(foodItem)
 })
 
 /// @desc Delete a food item and update related meals and daily logs
@@ -132,7 +132,7 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 
 		// Commit the transaction
 		await session.commitTransaction()
-		res.status(200).json({ message: 'Food item and related data processed successfully' })
+		res.status(HTTP_STATUS.OK).json({ message: 'Food item and related data processed successfully' })
 	} catch (error) {
 		// If an error occurs, abort the transaction
 		await session.abortTransaction()

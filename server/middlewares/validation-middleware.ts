@@ -1,5 +1,6 @@
 import { ValidationChain, validationResult } from 'express-validator'
 import { ExtendedRequest } from '../../app-types'
+import { HTTP_STATUS } from '../utils/http-messages'
 
 export function validateRequest(validator: ValidationChain[] | ValidationChain[][]) {
 	return (req: ExtendedRequest, res, next) => {
@@ -10,7 +11,7 @@ export function validateRequest(validator: ValidationChain[] | ValidationChain[]
 		const errors = validationResult(req)
 
 		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() })
+			return res.status(HTTP_STATUS.BAD_REQUEST).json({ errors: errors.array() })
 		}
 
 		next()

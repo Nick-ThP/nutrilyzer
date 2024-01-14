@@ -12,7 +12,7 @@ import { mealRouter } from './routes/meal-router'
 import { userRouter } from './routes/user-router'
 import { corsOptions } from './utils/cors-options'
 import { connectDb } from './utils/db-connection'
-import { limitOptions } from './utils/rate-limit'
+import { limitOptions } from './utils/rate-limit-options'
 
 // Initialization
 const app: Application = express()
