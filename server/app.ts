@@ -2,7 +2,6 @@ import compression from 'compression'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express, { Application } from 'express'
-import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import { createHttpErrorResponse } from './middlewares/http-error-middleware'
@@ -12,7 +11,6 @@ import { mealRouter } from './routes/meal-router'
 import { userRouter } from './routes/user-router'
 import { corsOptions } from './utils/cors-options'
 import { connectDb } from './utils/db-connection'
-import { limitOptions } from './utils/rate-limit-options'
 
 // Initialization
 const app: Application = express()
@@ -27,7 +25,7 @@ connectDb()
 app.use(helmet())
 
 // Rate limiting with a redis server
-app.use(rateLimit(limitOptions))
+// app.use(rateLimit(limitOptions))
 
 // Set up CORS
 app.use(cors(corsOptions))

@@ -5,15 +5,30 @@ import { DailyLog } from '../models/daily-log-model'
 import { HTTP_STATUS } from '../utils/http-messages'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 
+// @desc Get all daily logs
+// @route GET /api/dailyLogs
+// @access Private
+export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
+	const userId = req.user?._id
+
+	const logs = await DailyLog.find({ userId })
+
+	if (!logs.length) {
+		throw new AsyncHandlerError('Daily logs not found', HTTP_STATUS.NOT_FOUND)
+	}
+
+	res.status(HTTP_STATUS.OK).json(logs)
+})
+
 // @desc Update meals on daily log
 // @route POST /api/dailyLogs
 // @access Private
 export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { date, meals }: Omit<IDailyLog<ObjectId>, 'userId'> = req.body
 	const userId = req.user?._id
+	const { date, meals }: Omit<IDailyLog<ObjectId>, 'userId'> = req.body
 
 	// Create objects for the update
-	const filter = { date, userId }
+	const filter = { userId, date }
 	const update = {
 		$set: { meals },
 		$setOnInsert: { userId, date }
@@ -35,26 +50,12 @@ export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 	res.status(HTTP_STATUS.OK).json(updateResult)
 })
 
-// @desc Get all daily logs
-// @route GET /api/dailyLogs
-// @access Private
-export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
-	const userId = req.user?._id
-	const logs = await DailyLog.find({ userId })
-
-	if (!logs.length) {
-		throw new AsyncHandlerError('Daily logs not found', HTTP_STATUS.NOT_FOUND)
-	}
-
-	res.status(HTTP_STATUS.OK).json(logs)
-})
-
 // @desc Get a specific daily log (with meal and food item aggregation)
 // @route GET /api/dailyLogs/:logId
 // @access Private
 export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { logId } = req.params
 	const userId = req.user?._id
+	const { logId } = req.params
 
 	const log = await DailyLog.aggregate([
 		{

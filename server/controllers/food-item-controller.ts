@@ -16,28 +16,27 @@ export const getAllFoodItems = asyncHandler(async (req: ExtendedRequest, res) =>
 	// Check if the user has at least one food item available to them
 	const foodItems = await FoodItem.find({ $or: [{ userId }, { isDefault: true }] })
 
-	if (foodItems.length === 0) {
+	if (!foodItems.length) {
 		throw new AsyncHandlerError('No food items found for the user', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(HTTP_STATUS.OK).json(foodItems)
 })
 
-// @desc Get a single food item by ID
-// @route GET /api/foodItems/:id
+// @desc Get multiple food items by ID's
+// @route GET /api/foodItems/
 // @access Private
-export const getFoodItemById = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { id } = req.params
-	const userId = req.user?._id
+export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
+	const foodItemIds = req.body
 
 	// Check if the food item exists and belongs to the user
-	const foodItem = await FoodItem.findOne({ _id: id, userId })
+	const foodItems = await FoodItem.find({ _id: { $in: foodItemIds } })
 
-	if (!foodItem) {
-		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
+	if (!foodItems.length) {
+		throw new AsyncHandlerError('Could not find food items with the provided ids', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(HTTP_STATUS.OK).json(foodItem)
+	res.status(HTTP_STATUS.OK).json(foodItems)
 })
 
 // @desc Create a new food item
@@ -45,49 +44,49 @@ export const getFoodItemById = asyncHandler(async (req: ExtendedRequest, res) =>
 // @access Private
 export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const foodItemData = { ...req.body, userId, isDefault: false }
+	const foodItemData = req.body
 
 	// Create a new food item
-	const foodItem = await FoodItem.create(foodItemData)
+	const newFoodItem = await FoodItem.create({ userId, ...foodItemData, isDefault: false })
 
-	if (!foodItem) {
-		throw new AsyncHandlerError('Food item could no be created', HTTP_STATUS.SERVER_ERROR)
+	if (!newFoodItem) {
+		throw new AsyncHandlerError('Food item could not be created', HTTP_STATUS.SERVER_ERROR)
 	}
 
-	res.status(HTTP_STATUS.CREATED).json(foodItem)
+	res.status(HTTP_STATUS.CREATED).json(newFoodItem)
 })
 
 // @desc Update a food item
 // @route PUT /api/foodItems/:id
 // @access Private
 export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
-	const { id } = req.params
 	const userId = req.user?._id
-	const updateData = req.body
+	const foodItemId = req.params
+	const foodItemData = req.body
 
 	// Check if the food item exists and belongs to the user
-	const foodItem = await FoodItem.findOneAndUpdate({ _id: id, userId }, updateData, { new: true })
+	const updatedFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId }, foodItemData, { new: true })
 
-	if (!foodItem) {
+	if (!updatedFoodItem) {
 		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 	}
 
-	res.status(HTTP_STATUS.OK).json(foodItem)
+	res.status(HTTP_STATUS.OK).json(updatedFoodItem)
 })
 
 /// @desc Delete a food item and update related meals and daily logs
-// @route DELETE /api/foodItems/:foodItemId
+// @route DELETE /api/foodItems/:id
 // @access Private
 export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const session = await mongoose.startSession()
 	session.startTransaction()
 
 	try {
-		const { foodItemId } = req.params
 		const userId = req.user?._id
+		const foodItemId = req.params
 
 		// Find the food item
-		const foodItem = await FoodItem.findOne({ _id: foodItemId, userId }).session(session)
+		const foodItem = await FoodItem.findOne({ userId, _id: foodItemId }).session(session)
 
 		if (!foodItem) {
 			throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
@@ -104,7 +103,7 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 		}
 
 		// Now, update or delete associated Meals
-		const mealsToUpdateOrDelete = await Meal.find({ 'foodEntry.foodItem': foodItemId, userId }, null, { session })
+		const mealsToUpdateOrDelete = await Meal.find({ userId, 'foodEntry.foodItem': foodItemId }, null, { session })
 
 		for (const meal of mealsToUpdateOrDelete) {
 			if (foodItem.isDefault && userId) {
@@ -119,12 +118,11 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 
 		// Now, update or delete associated DailyLogs for all mealtimes
 		const mealIdsToDelete = mealsToUpdateOrDelete.map(meal => meal._id)
-
 		const mealtimes = ['breakfast', 'lunch', 'dinner', 'snacks']
 
 		for (const mealtime of mealtimes) {
 			await DailyLog.updateManyAndDeleteIfEmpty(
-				{ [`meals.${mealtime}`]: { $in: mealIdsToDelete }, userId: userId },
+				{ [`meals.${mealtime}`]: { $in: mealIdsToDelete }, userId },
 				{ $pull: { [`meals.${mealtime}`]: { $in: mealIdsToDelete } } },
 				{ session }
 			)

@@ -10,17 +10,18 @@ import { HTTP_STATUS } from '../utils/http-messages'
 //@route POST /api/users/register
 //@access public
 export const registerUser = asyncHandler(async (req, res) => {
-	// Grab the keys from body object
 	const { username, email, password }: IUser = req.body
 
 	// Check if user is already registered
 	const userAvailable = await User.findOne({ email })
+
 	if (userAvailable) {
 		throw new AsyncHandlerError('User is already registered', HTTP_STATUS.BAD_REQUEST)
 	}
 
 	// Hash password and create user in database
 	const hashedPassword = await bcrypt.hash(password, 10)
+
 	const user = await User.create({
 		username,
 		email,
@@ -45,33 +46,33 @@ export const registerUser = asyncHandler(async (req, res) => {
 //@route POST /api/users/login
 //@access public
 export const loginUser = asyncHandler(async (req, res) => {
-	// Grab the keys from body object
 	const { email, password }: Omit<IUser, 'username'> = req.body
 
 	// Check if user's email is registered
 	const user = await User.findOne({ email })
+
 	if (!user) {
 		throw new AsyncHandlerError('User does not exist', HTTP_STATUS.BAD_REQUEST)
 	}
 
 	// Compare user's password with hashed and create a token
 	const isValidPassword = await bcrypt.compare(password, user.password)
-	if (user && isValidPassword) {
-		res.status(HTTP_STATUS.OK).json({
-			id: user.id,
-			username: user.username,
-			email: user.email,
-			token: generateAuthToken({ username: user.username, _id: user._id })
-		})
-	} else {
+
+	if (isValidPassword) {
 		throw new AsyncHandlerError('Password is not valid', HTTP_STATUS.UNAUTHORIZED)
 	}
+
+	res.status(HTTP_STATUS.OK).json({
+		id: user.id,
+		username: user.username,
+		email: user.email,
+		token: generateAuthToken({ username: user.username, _id: user._id })
+	})
 })
 
 //@desc Information about current user
 //@route GET /api/users/current
 //@access private
 export const currentUser = asyncHandler(async (req: ExtendedRequest, res) => {
-	// Pass down info about current user
 	res.status(HTTP_STATUS.OK).json(req.user)
 })
