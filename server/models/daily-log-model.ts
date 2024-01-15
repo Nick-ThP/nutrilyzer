@@ -1,6 +1,6 @@
 import mongoose, { ObjectId, Schema } from 'mongoose'
 import { IDailyLog, IDailyLogModel } from '../../app-types'
-import { isLogMealsEmpty } from '../utils/helper-functions'
+import { isLoggedMealsEmpty } from '../utils/helper-functions'
 
 const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
 	{
@@ -56,7 +56,7 @@ dailyLogSchema.statics.updateOneAndDeleteIfEmpty = async function (
 		const updatedLog = await this.findOneAndUpdate(filter, update, options)
 
 		// Check if the update was successful and if the updated log has empty meals
-		if (updatedLog && isLogMealsEmpty(updatedLog.meals)) {
+		if (updatedLog && isLoggedMealsEmpty(updatedLog.meals)) {
 			const deleteResult = await this.deleteOne({ _id: updatedLog._id })
 
 			if (deleteResult.deletedCount === 0) {
@@ -86,7 +86,7 @@ dailyLogSchema.statics.updateManyAndDeleteIfEmpty = async function (
 
 		// Check each log to see if it should be deleted
 		for (const log of foundLogs) {
-			if (isLogMealsEmpty(log.meals)) {
+			if (isLoggedMealsEmpty(log.meals)) {
 				const deleteResult = await this.deleteOne({ _id: log._id })
 
 				if (deleteResult.deletedCount === 0) {

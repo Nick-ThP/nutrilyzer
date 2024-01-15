@@ -22,5 +22,5 @@
 		"noFallthroughCasesInSwitch": true
 	},
 	"include": ["src/**/*", "app-types.ts"],
-	"references": [{ "path": "./tsconfig.vite.json" }]
+	"references": [{ "path": "./tsconfig.node.json" }]
 }
