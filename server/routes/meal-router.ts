@@ -12,4 +12,4 @@ mealRouter
 	.get(authenticate, getMealsByIds)
 	.post(authenticate, validateRequest(mealValidator), createMeal)
 
-mealRouter.route('/:id').put(authenticate, validateRequest(mealValidator), updateMeal).delete(authenticate, deleteMeal)
+mealRouter.route('/:mealId').put(authenticate, validateRequest(mealValidator), updateMeal).delete(authenticate, deleteMeal)

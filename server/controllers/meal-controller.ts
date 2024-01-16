@@ -26,7 +26,7 @@ export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res) => {
 // @route GET /api/meals/
 // @access Private
 export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
-	const mealIds = req.body
+	const mealIds = req.body.mealIds
 
 	const meals = await Meal.find({ _id: { $in: mealIds } })
 
@@ -42,7 +42,7 @@ export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
 // @access Private
 export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const mealData = req.body
+	const mealData = req.body.mealData
 
 	// Create a new meal
 	const newMeal = await Meal.create({ userId, ...mealData, isDefault: false })
@@ -59,8 +59,8 @@ export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 // @access Private
 export const updateMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const mealId = req.params
-	const mealData = req.body
+	const mealId = req.params.mealId
+	const mealData = req.body.mealData
 
 	// Check if the meal exists and belongs to the user
 	const updatedMeal = await Meal.findOneAndUpdate({ userId, _id: mealId }, mealData, { new: true })
@@ -80,8 +80,8 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	session.startTransaction()
 
 	try {
-		const mealId = req.params
 		const userId = req.user?._id
+		const mealId = req.params.mealId
 
 		// Find the meal
 		const meal = await Meal.findOne({ userId, _id: mealId }).session(session)

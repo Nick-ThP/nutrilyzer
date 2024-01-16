@@ -55,7 +55,7 @@ export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 // @access Private
 export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const { logId } = req.params
+	const logId = req.params.logId
 
 	const log = await DailyLog.aggregate([
 		{

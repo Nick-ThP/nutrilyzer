@@ -12,4 +12,4 @@ foodItemRouter
 	.get(authenticate, getFoodItemsByIds)
 	.post(authenticate, validateRequest(foodItemValidator), createFoodItem)
 
-foodItemRouter.route('/:id').put(authenticate, validateRequest(foodItemValidator), updateFoodItem).delete(authenticate, deleteFoodItem)
+foodItemRouter.route('/:foodItemid').put(authenticate, validateRequest(foodItemValidator), updateFoodItem).delete(authenticate, deleteFoodItem)

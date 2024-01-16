@@ -1,9 +1,10 @@
 import { ValidationChain, validationResult } from 'express-validator'
 import { ExtendedRequest } from '../../app-types'
 import { HTTP_STATUS } from '../utils/http-messages'
+import { NextFunction, Response } from 'express'
 
 export function validateRequest(validator: ValidationChain[] | ValidationChain[][]) {
-	return (req: ExtendedRequest, res, next) => {
+	return (req: ExtendedRequest, res: Response, next: NextFunction) => {
 		const validationArray = Array.isArray(validator[0]) ? (validator as ValidationChain[][]).flat() : (validator as ValidationChain[])
 
 		validationArray.forEach(validation => validation.run(req))

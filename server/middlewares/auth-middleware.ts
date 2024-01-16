@@ -6,7 +6,7 @@ import { HTTP_STATUS } from '../utils/http-messages'
 
 export const authenticate = asyncHandler(async (req: ExtendedRequest, res, next) => {
 	// Initialize variables
-	let token
+	let token: string
 	let authHeader = req.headers.authorization
 
 	// Check if there's something wrong with the request header

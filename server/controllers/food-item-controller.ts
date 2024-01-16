@@ -27,7 +27,7 @@ export const getAllFoodItems = asyncHandler(async (req: ExtendedRequest, res) =>
 // @route GET /api/foodItems/
 // @access Private
 export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
-	const foodItemIds = req.body
+	const foodItemIds = req.body.foodItemIds
 
 	// Check if the food item exists and belongs to the user
 	const foodItems = await FoodItem.find({ _id: { $in: foodItemIds } })
@@ -44,7 +44,7 @@ export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) 
 // @access Private
 export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const foodItemData = req.body
+	const foodItemData = req.body.foodItemData
 
 	// Create a new food item
 	const newFoodItem = await FoodItem.create({ userId, ...foodItemData, isDefault: false })
@@ -61,8 +61,8 @@ export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 // @access Private
 export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const foodItemId = req.params
-	const foodItemData = req.body
+	const foodItemId = req.params.foodItemId
+	const foodItemData = req.body.foodItemData
 
 	// Check if the food item exists and belongs to the user
 	const updatedFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId }, foodItemData, { new: true })
@@ -83,7 +83,7 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 
 	try {
 		const userId = req.user?._id
-		const foodItemId = req.params
+		const foodItemId = req.params.foodItemId
 
 		// Find the food item
 		const foodItem = await FoodItem.findOne({ userId, _id: foodItemId }).session(session)

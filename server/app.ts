@@ -2,6 +2,7 @@ import compression from 'compression'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express, { Application } from 'express'
+import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import { createHttpErrorResponse } from './middlewares/http-error-middleware'
@@ -9,26 +10,24 @@ import { dailyLogRouter } from './routes/daily-log-router'
 import { foodItemRouter } from './routes/food-item-router'
 import { mealRouter } from './routes/meal-router'
 import { userRouter } from './routes/user-router'
-import { corsOptions } from './utils/cors-options'
+import { corsOptions } from './options/cors-options'
 import { connectDb } from './utils/db-connection'
+import { helmetOptions } from './options/helmet-options'
+import { limitOptions } from './options/rate-limit-options'
 
 // Initialization
 const app: Application = express()
 
 // Environment variables
-dotenv.config()
+dotenv.config({ path: './server/.env' })
 
 // Database connection
 connectDb()
 
-// Helmet for security
-app.use(helmet())
-
-// Rate limiting with a redis server
-// app.use(rateLimit(limitOptions))
-
-// Set up CORS
+// Security measures
 app.use(cors(corsOptions))
+app.use(helmet(helmetOptions))
+app.use(rateLimit(limitOptions))
 
 // Morgan for logging
 app.use(morgan('dev'))
