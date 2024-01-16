@@ -32,7 +32,6 @@ export const isValidNutritionObject = (value: INutrition) => {
 export const isUsernameUnique = async (value: string) => {
 	try {
 		const found = await User.findOne({ username: value })
-		console.log("📡✨ ~ isUsernameUnique ~ found:", !found)
 		return !found
 	} catch (error) {
 		throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
@@ -42,7 +41,6 @@ export const isUsernameUnique = async (value: string) => {
 export const isEmailUnique = async (value: string) => {
 	try {
 		const found = await User.findOne({ email: value })
-		console.log("📡✨ ~ isEmailUnique ~ found:", !found)
 		return !found
 	} catch (error) {
 		throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
