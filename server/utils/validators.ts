@@ -1,15 +1,50 @@
 import { body } from 'express-validator'
-import { hasRequiredMealTimes, isValidMealArray, isValidNutritionObject } from './helper-functions'
+import { AsyncHandlerError } from './async-handler-error'
+import { hasRequiredMealTimes, isEmailUnique, isUsernameUnique, isValidMealArray, isValidNutritionObject } from './helper-functions'
+import { HTTP_STATUS } from './http-messages'
 
 export const registrationValidator = [
-	body('username').trim().notEmpty().withMessage('userame is required'),
-	body('email').trim().notEmpty().withMessage('email is required'),
-	body('password').trim().notEmpty().withMessage('password is required')
+	body('username')
+		.trim()
+		.notEmpty()
+		.withMessage('userame is required')
+		.isLength({ min: 5 })
+		.withMessage('Username must be at least 5 characters long')
+		.custom(async value => {
+			try {
+				await isUsernameUnique(value)
+			} catch (error) {
+				throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
+			}
+		})
+		.withMessage('This username is taken'),
+	body('email')
+		.trim()
+		.notEmpty()
+		.withMessage('email is required')
+		.isEmail()
+		.withMessage('Invalid email format')
+		.custom(async value => {
+			try {
+				await isEmailUnique(value)
+			} catch (error) {
+				throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
+			}
+		})
+		.withMessage('Email is already registered'),
+	body('password')
+		.trim()
+		.notEmpty()
+		.withMessage('password is required')
+		.isLength({ min: 8 })
+		.withMessage('Password must be at least 8 characters long')
+		.matches(/\d/)
+		.withMessage('Password must contain at least one digit')
 ]
 
 export const loginValidator = [
-	body('email').trim().notEmpty().withMessage('email is required'),
-	body('password').trim().notEmpty().withMessage('password is required')
+	body('email').trim().notEmpty().withMessage('Please include your email'),
+	body('password').trim().notEmpty().withMessage('Please include your password')
 ]
 
 export const foodItemValidator = [
