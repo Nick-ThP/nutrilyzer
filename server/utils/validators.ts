@@ -1,7 +1,5 @@
 import { body } from 'express-validator'
-import { AsyncHandlerError } from './async-handler-error'
 import { hasRequiredMealTimes, isEmailUnique, isUsernameUnique, isValidMealArray, isValidNutritionObject } from './helper-functions'
-import { HTTP_STATUS } from './http-messages'
 
 export const registrationValidator = [
 	body('username')
@@ -10,28 +8,24 @@ export const registrationValidator = [
 		.withMessage('userame is required')
 		.isLength({ min: 5 })
 		.withMessage('Username must be at least 5 characters long')
-		.custom(async value => {
-			try {
-				await isUsernameUnique(value)
-			} catch (error) {
-				throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
+		.custom(async username => {
+			const isUnique = await isUsernameUnique(username)
+			if (!isUnique) {
+				throw new Error('Username is taken')
 			}
-		})
-		.withMessage('This username is taken'),
+		}),
 	body('email')
 		.trim()
 		.notEmpty()
 		.withMessage('email is required')
 		.isEmail()
 		.withMessage('Invalid email format')
-		.custom(async value => {
-			try {
-				await isEmailUnique(value)
-			} catch (error) {
-				throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
+		.custom(async email => {
+			const isUnique = await isEmailUnique(email)
+			if (!isUnique) {
+				throw new Error('Email is already registered')
 			}
-		})
-		.withMessage('Email is already registered'),
+		}),
 	body('password')
 		.trim()
 		.notEmpty()
@@ -49,7 +43,11 @@ export const loginValidator = [
 
 export const foodItemValidator = [
 	body('name').trim().notEmpty().withMessage('Name is required'),
-	body('nutrition').custom(isValidNutritionObject).withMessage('Invalid nutrition format'),
+	body('nutrition').custom(value => {
+		if (!isValidNutritionObject(value)) {
+			throw new Error('Invalid nutrition format')
+		}
+	}),
 	body('nutrition.calories').isNumeric().withMessage('Calories must be a number'),
 	body('nutrition.carbs').trim().notEmpty().withMessage('Carbs are required'),
 	body('nutrition.fiber').trim().notEmpty().withMessage('Fiber is required'),
@@ -67,9 +65,29 @@ export const mealValidator = [
 
 export const dailyLogValidator = [
 	body('date').isISO8601().withMessage('Invalid date format'),
-	body('meals').custom(hasRequiredMealTimes).withMessage('Invalid meals array'),
-	body('meals.breakfast').custom(isValidMealArray).withMessage('Invalid breakfast array'),
-	body('meals.lunch').custom(isValidMealArray).withMessage('Invalid lunch array'),
-	body('meals.dinner').custom(isValidMealArray).withMessage('Invalid dinner array'),
-	body('meals.snacks').custom(isValidMealArray).withMessage('Invalid snacks array')
+	body('meals').custom(value => {
+		if (!hasRequiredMealTimes(value)) {
+			throw new Error('Invalid meals array')
+		}
+	}),
+	body('meals.breakfast').custom(value => {
+		if (!isValidMealArray(value)) {
+			throw new Error('Invalid breakfast array')
+		}
+	}),
+	body('meals.lunch').custom(value => {
+		if (!isValidMealArray(value)) {
+			throw new Error('Invalid lunch array')
+		}
+	}),
+	body('meals.dinner').custom(value => {
+		if (!isValidMealArray(value)) {
+			throw new Error('Invalid dinner array')
+		}
+	}),
+	body('meals.snacks').custom(value => {
+		if (!isValidMealArray(value)) {
+			throw new Error('Invalid snacks array')
+		}
+	})
 ]
