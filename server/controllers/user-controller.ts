@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import asyncHandler from 'express-async-handler'
-import { ExtendedRequest, IUser } from '../../app-types'
+import { ExtendedRequest, IUser, IUserResponse } from '../../app-types'
 import { User } from '../models/user-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 import { generateAuthToken } from '../utils/helper-functions'
@@ -13,7 +13,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 	const { username, email, password }: IUser = req.body
 
 	// Check if user is already registered
-	const userAvailable = await User.findOne({ email })
+	const userAvailable: IUser = await User.findOne({ email })
 
 	if (userAvailable) {
 		throw new AsyncHandlerError('User is already registered', HTTP_STATUS.BAD_REQUEST)
@@ -22,7 +22,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 	// Hash password and create user in database
 	const hashedPassword = await bcrypt.hash(password, 10)
 
-	const user = await User.create({
+	const user: IUser = await User.create({
 		username,
 		email,
 		password: hashedPassword
@@ -34,12 +34,14 @@ export const registerUser = asyncHandler(async (req, res) => {
 	}
 
 	// Send a response with new user object including token
-	res.status(HTTP_STATUS.CREATED).json({
+	const response: IUserResponse = {
 		_id: user._id,
 		username: user.username,
 		email: user.email,
 		token: generateAuthToken({ username, _id: user._id })
-	})
+	}
+
+	res.status(HTTP_STATUS.CREATED).json(response)
 })
 
 //@desc Login user
@@ -49,7 +51,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 	const { email, password }: Omit<IUser, 'username'> = req.body
 
 	// Check if user's email is registered
-	const user = await User.findOne({ email })
+	const user: IUser = await User.findOne({ email })
 
 	if (!user) {
 		throw new AsyncHandlerError('User does not exist', HTTP_STATUS.BAD_REQUEST)
@@ -62,12 +64,15 @@ export const loginUser = asyncHandler(async (req, res) => {
 		throw new AsyncHandlerError('Password is not valid', HTTP_STATUS.UNAUTHORIZED)
 	}
 
-	res.status(HTTP_STATUS.OK).json({
-		id: user.id,
+	// Send a reponse with the user object including token
+	const response: IUserResponse = {
+		_id: user._id,
 		username: user.username,
 		email: user.email,
 		token: generateAuthToken({ username: user.username, _id: user._id })
-	})
+	}
+
+	res.status(HTTP_STATUS.OK).json(response)
 })
 
 //@desc Information about current user

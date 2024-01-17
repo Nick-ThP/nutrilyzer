@@ -10,7 +10,7 @@ export interface IUser {
 	password: string
 }
 
-export interface IUserWithToken extends IUser {
+export interface IUserResponse extends Omit<IUser, 'password'> {
 	token: string
 }
 
@@ -31,6 +31,9 @@ export interface IFoodItem {
 	userId?: ObjectId
 	hiddenByUsers: ObjectId[]
 }
+
+// Food Submission related types
+export type IFoodItemSubmit = Omit<IFoodItem, 'isDefault' | 'hiddenByUsers'>
 
 // Food Item Entry and Meal related interfaces
 type FoodTypeUnion = IFoodItem | ObjectId
@@ -63,27 +66,25 @@ interface IMealSubmitUpdate {
 	isRemovedFromCollection: boolean
 }
 
-export type IMealSubmit<T extends Create | Update> = Omit<IMeal<ObjectId>, 'hiddenByUsers' | 'isDefault'> &
+export type IMealSubmit<T extends Create | Update> = Omit<IMeal<ObjectId>, 'isDefault' | 'hiddenByUsers'> &
 	(T extends Create ? IMealSubmitCreate : IMealSubmitUpdate)
 
 // Daily Log and Aggregated Log related types
-type MealTypeUnion = IMeal<IFoodItem> | ObjectId
+export type Aggregated = 'Aggregated'
 
-export interface IDailyLog<T extends MealTypeUnion> {
+export interface IDailyLog<T extends Aggregated | ObjectId> {
 	_id?: string
 	date: Date
 	userId: ObjectId
-	meals: IMealtimes<T>
+	meals: Meals<T>
 }
 
-export interface IMealtimes<T> {
-	breakfast: T[]
-	lunch: T[]
-	dinner: T[]
-	snacks: T[]
+type Meals<T> = {
+	breakfast: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
+	lunch: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
+	dinner: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
+	snacks: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
 }
-
-export type AggregatedDailyLog = IDailyLog<IMeal<IFoodItem>>
 
 // Database Model and Request Extensions
 export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {

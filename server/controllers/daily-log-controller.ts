@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import { ObjectId } from 'mongodb'
-import { ExtendedRequest, IDailyLog } from '../../app-types'
+import { Aggregated, ExtendedRequest, IDailyLog } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { HTTP_STATUS } from '../utils/http-messages'
 import { AsyncHandlerError } from '../utils/async-handler-error'
@@ -11,7 +11,7 @@ import { AsyncHandlerError } from '../utils/async-handler-error'
 export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 
-	const logs = await DailyLog.find({ userId })
+	const logs: IDailyLog<ObjectId>[] = await DailyLog.find({ userId })
 
 	res.status(HTTP_STATUS.OK).json(logs)
 })
@@ -53,7 +53,7 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const logId = req.params.logId
 
-	const log = await DailyLog.aggregate([
+	const log: IDailyLog<Aggregated>[] = await DailyLog.aggregate([
 		{
 			$match: {
 				_id: new ObjectId(logId),
@@ -207,7 +207,7 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 		}
 	])
 
-	if (!log || !log.length) {
+	if (!log.length) {
 		throw new AsyncHandlerError('Daily log not found', HTTP_STATUS.NOT_FOUND)
 	}
 

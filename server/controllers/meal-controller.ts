@@ -14,7 +14,7 @@ export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 
 	// Check if the user has at least one meal available to them
-	const meals = await Meal.find({ $or: [{ userId }, { isDefault: true }] })
+	const meals: IMeal<ObjectId>[] = await Meal.find({ $or: [{ userId }, { isDefault: true }] })
 
 	if (!meals.length) {
 		throw new AsyncHandlerError('No meals found for the user', HTTP_STATUS.NOT_FOUND)
@@ -29,7 +29,7 @@ export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res) => {
 export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
 	const mealIds: ObjectId[] = req.body.mealIds
 
-	const meals = await Meal.find({ _id: { $in: mealIds } })
+	const meals: IMeal<ObjectId>[] = await Meal.find({ _id: { $in: mealIds } })
 
 	if (!meals.length) {
 		throw new AsyncHandlerError('Could not find meals with the provided ids', HTTP_STATUS.NOT_FOUND)

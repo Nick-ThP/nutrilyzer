@@ -1,11 +1,12 @@
 import asyncHandler from 'express-async-handler'
 import mongoose from 'mongoose'
-import { ExtendedRequest } from '../../app-types'
+import { ExtendedRequest, IFoodItem, IFoodItemSubmit } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { FoodItem } from '../models/food-item-model'
 import { Meal } from '../models/meal-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
+import { ObjectId } from 'mongodb'
 
 // @desc Get all food items for a user
 // @route GET /api/foodItems
@@ -14,7 +15,7 @@ export const getAllFoodItems = asyncHandler(async (req: ExtendedRequest, res) =>
 	const userId = req.user?._id
 
 	// Check if the user has at least one food item available to them
-	const foodItems = await FoodItem.find({ $or: [{ userId }, { isDefault: true }] })
+	const foodItems: IFoodItem[] = await FoodItem.find({ $or: [{ userId }, { isDefault: true }] })
 
 	if (!foodItems.length) {
 		throw new AsyncHandlerError('No food items found for the user', HTTP_STATUS.NOT_FOUND)
@@ -27,10 +28,10 @@ export const getAllFoodItems = asyncHandler(async (req: ExtendedRequest, res) =>
 // @route GET /api/foodItems/
 // @access Private
 export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
-	const foodItemIds = req.body.foodItemIds
+	const foodItemIds: ObjectId[] = req.body.foodItemIds
 
 	// Check if the food item exists and belongs to the user
-	const foodItems = await FoodItem.find({ _id: { $in: foodItemIds } })
+	const foodItems: IFoodItem[] = await FoodItem.find({ _id: { $in: foodItemIds } })
 
 	if (!foodItems.length) {
 		throw new AsyncHandlerError('Could not find food items with the provided ids', HTTP_STATUS.NOT_FOUND)
@@ -44,10 +45,10 @@ export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) 
 // @access Private
 export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const { name, nutrition } = req.body
+	const { name, nutrition }: IFoodItemSubmit  = req.body
 
 	// Create a new food item
-	const newFoodItem = await FoodItem.create({ userId, name, nutrition, isDefault: false })
+	const newFoodItem: IFoodItem = await FoodItem.create({ userId, name, nutrition, isDefault: false })
 
 	if (!newFoodItem) {
 		throw new AsyncHandlerError('Food item could not be created', HTTP_STATUS.SERVER_ERROR)
@@ -62,10 +63,10 @@ export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const foodItemId = req.params.foodItemId
-	const { name, nutrition } = req.body
+	const { name, nutrition }: IFoodItemSubmit = req.body
 
 	// Check if the food item exists and belongs to the user
-	const updatedFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId}, { name, nutrition }, { new: true })
+	const updatedFoodItem: IFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId}, { name, nutrition }, { new: true })
 
 	if (!updatedFoodItem) {
 		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)

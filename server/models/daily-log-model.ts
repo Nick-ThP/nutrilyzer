@@ -1,8 +1,8 @@
-import mongoose, { ObjectId, Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import { IDailyLog, IDailyLogModel } from '../../app-types'
 import { isLoggedMealsEmpty } from '../utils/helper-functions'
 
-const dailyLogSchema = new Schema<IDailyLog<ObjectId>>(
+const dailyLogSchema = new Schema<IDailyLog<mongoose.Types.ObjectId>>(
 	{
 		date: {
 			type: Date,
@@ -102,4 +102,4 @@ dailyLogSchema.statics.updateManyAndDeleteIfEmpty = async function (
 	}
 }
 
-export const DailyLog = mongoose.model<IDailyLog<ObjectId>, IDailyLogModel>('DailyLog', dailyLogSchema)
+export const DailyLog = mongoose.model<IDailyLog<mongoose.Types.ObjectId>, IDailyLogModel>('DailyLog', dailyLogSchema)
