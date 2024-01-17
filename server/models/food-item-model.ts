@@ -12,19 +12,15 @@ const foodItemSchema = new Schema<IFoodItem>(
 				type: Number,
 				required: true
 			},
+			protein: {
+				type: String,
+				required: true
+			},
 			carbs: {
 				type: String,
 				required: true
 			},
-			fiber: {
-				type: String,
-				required: true
-			},
 			fat: {
-				type: String,
-				required: true
-			},
-			protein: {
 				type: String,
 				required: true
 			},

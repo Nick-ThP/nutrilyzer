@@ -6,6 +6,6 @@ import { dailyLogValidator } from '../utils/validators'
 
 export const dailyLogRouter = express.Router()
 
-dailyLogRouter.route('/').get(authenticate, getAllLogs).post(authenticate, validateRequest(dailyLogValidator), updateLog)
+dailyLogRouter.route('/').get(authenticate, getAllLogs).put(authenticate, validateRequest(dailyLogValidator), updateLog)
 
 dailyLogRouter.route('/:logId').get(authenticate, getLogDetails)

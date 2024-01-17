@@ -44,10 +44,10 @@ export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) 
 // @access Private
 export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const foodItemData = req.body.foodItemData
+	const { name, nutrition } = req.body
 
 	// Create a new food item
-	const newFoodItem = await FoodItem.create({ userId, ...foodItemData, isDefault: false })
+	const newFoodItem = await FoodItem.create({ userId, name, nutrition, isDefault: false })
 
 	if (!newFoodItem) {
 		throw new AsyncHandlerError('Food item could not be created', HTTP_STATUS.SERVER_ERROR)
@@ -62,10 +62,10 @@ export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const foodItemId = req.params.foodItemId
-	const foodItemData = req.body.foodItemData
+	const { name, nutrition } = req.body
 
 	// Check if the food item exists and belongs to the user
-	const updatedFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId }, foodItemData, { new: true })
+	const updatedFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId}, { name, nutrition }, { new: true })
 
 	if (!updatedFoodItem) {
 		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)

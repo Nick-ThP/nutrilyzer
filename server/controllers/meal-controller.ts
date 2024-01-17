@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler'
+import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
-import { ExtendedRequest } from '../../app-types'
+import { Create, ExtendedRequest, IMeal, IMealSubmit, Update } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { Meal } from '../models/meal-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
@@ -26,7 +27,7 @@ export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res) => {
 // @route GET /api/meals/
 // @access Private
 export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
-	const mealIds = req.body.mealIds
+	const mealIds: ObjectId[] = req.body.mealIds
 
 	const meals = await Meal.find({ _id: { $in: mealIds } })
 
@@ -42,10 +43,11 @@ export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
 // @access Private
 export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const mealData = req.body.mealData
+	const { name, foodEntries, isSavedInCollection }: IMealSubmit<Create> = req.body
+	const visibility = isSavedInCollection ? { hiddenByUsers: [] } : { hiddenByUsers: [userId] }
 
 	// Create a new meal
-	const newMeal = await Meal.create({ userId, ...mealData, isDefault: false })
+	const newMeal: IMeal<ObjectId> = await Meal.create({ userId, name, foodEntries, isDefault: false, visibility })
 
 	if (!newMeal) {
 		throw new AsyncHandlerError('Meal could not be created', HTTP_STATUS.SERVER_ERROR)
@@ -60,10 +62,11 @@ export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 export const updateMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const mealId = req.params.mealId
-	const mealData = req.body.mealData
+	const { name, foodEntries, isRemovedFromCollection }: IMealSubmit<Update> = req.body
+	const visibility = isRemovedFromCollection ? { hiddenByUsers: [userId] } : { hiddenByUsers: [] }
 
 	// Check if the meal exists and belongs to the user
-	const updatedMeal = await Meal.findOneAndUpdate({ userId, _id: mealId }, mealData, { new: true })
+	const updatedMeal = await Meal.findOneAndUpdate({ userId, _id: mealId }, { name, foodEntries, visibility }, { new: true })
 
 	if (!updatedMeal) {
 		throw new AsyncHandlerError('Meal not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)

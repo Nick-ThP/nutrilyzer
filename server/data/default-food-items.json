@@ -2,46 +2,131 @@
 	{
 		"name": "Pasta",
 		"isDefault": true,
-		"nutrition": { "calories": 131, "carbs": "25g", "fiber": "1.3g", "fat": "1.1g", "protein": "5g", "sodium": "6mg" }
+		"nutrition": { "calories": 131, "protein": "5g", "carbs": "25g", "fat": "1.1g", "sodium": "6mg" }
 	},
 	{
 		"name": "Chicken Breast",
 		"isDefault": true,
-		"nutrition": { "calories": 165, "carbs": "0g", "fiber": "0g", "fat": "3.6g", "protein": "31g", "sodium": "74mg" }
+		"nutrition": { "calories": 165, "protein": "31g", "carbs": "0g", "fat": "3.6g", "sodium": "74mg" }
 	},
 	{
 		"name": "Salmon",
 		"isDefault": true,
-		"nutrition": { "calories": 208, "carbs": "0g", "fiber": "0g", "fat": "13g", "protein": "20g", "sodium": "59mg" }
+		"nutrition": { "calories": 208, "protein": "20g", "carbs": "0g", "fat": "13g", "sodium": "59mg" }
 	},
 	{
 		"name": "Eggs",
 		"isDefault": true,
-		"nutrition": { "calories": 155, "carbs": "1.1g", "fiber": "0g", "fat": "11g", "protein": "13g", "sodium": "124mg" }
+		"nutrition": { "calories": 155, "protein": "13g", "carbs": "1.1g", "fat": "11g", "sodium": "70mg" }
 	},
 	{
 		"name": "Almonds",
 		"isDefault": true,
-		"nutrition": { "calories": 579, "carbs": "22g", "fiber": "12.5g", "fat": "50g", "protein": "21g", "sodium": "1mg" }
+		"nutrition": { "calories": 579, "protein": "21g", "carbs": "22g", "fat": "50g", "sodium": "1mg" }
 	},
 	{
 		"name": "Oats",
 		"isDefault": true,
-		"nutrition": { "calories": 389, "carbs": "66g", "fiber": "11g", "fat": "7g", "protein": "17g", "sodium": "2mg" }
+		"nutrition": { "calories": 389, "protein": "17g", "carbs": "66g", "fat": "7g", "sodium": "2mg" }
 	},
 	{
 		"name": "Yogurt",
 		"isDefault": true,
-		"nutrition": { "calories": 59, "carbs": "3.6g", "fiber": "0g", "fat": "0.4g", "protein": "10g", "sodium": "36mg" }
+		"nutrition": { "calories": 59, "protein": "10g", "carbs": "3.6g", "fat": "0.4g", "sodium": "36mg" }
 	},
 	{
 		"name": "Broccoli",
 		"isDefault": true,
-		"nutrition": { "calories": 34, "carbs": "7g", "fiber": "2.6g", "fat": "0.4g", "protein": "2.8g", "sodium": "33mg" }
+		"nutrition": { "calories": 34, "protein": "2.8g", "carbs": "7g", "fat": "0.4g", "sodium": "33mg" }
 	},
 	{
 		"name": "Spinach",
 		"isDefault": true,
-		"nutrition": { "calories": 23, "carbs": "3.6g", "fiber": "2.2g", "fat": "0.4g", "protein": "2.9g", "sodium": "79mg" }
+		"nutrition": { "calories": 23, "protein": "2.9g", "carbs": "3.6g", "fat": "0.4g", "sodium": "79mg" }
+	},
+	{
+		"name": "Banana",
+		"isDefault": true,
+		"nutrition": { "calories": 89, "protein": "1.1g", "carbs": "23g", "fat": "0.3g", "sodium": "1mg" }
+	},
+	{
+		"name": "Rice",
+		"isDefault": true,
+		"nutrition": { "calories": 130, "protein": "2.7g", "carbs": "28g", "fat": "0.3g", "sodium": "1mg" }
+	},
+	{
+		"name": "Milk",
+		"isDefault": true,
+		"nutrition": { "calories": 42, "protein": "3.4g", "carbs": "5g", "fat": "1g", "sodium": "44mg" }
+	},
+	{
+		"name": "Lean Ground Beef",
+		"isDefault": true,
+		"nutrition": { "calories": 250, "protein": "26g", "carbs": "0g", "fat": "15g", "sodium": "75mg" }
+	},
+	{
+		"name": "Skyr",
+		"isDefault": true,
+		"nutrition": { "calories": 59, "protein": "11g", "carbs": "4g", "fat": "0.2g", "sodium": "41mg" }
+	},
+	{
+		"name": "Cup Noodles",
+		"isDefault": true,
+		"nutrition": { "calories": 380, "protein": "7g", "carbs": "53g", "fat": "15g", "sodium": "1580mg" }
+	},
+	{
+		"name": "Granola",
+		"isDefault": true,
+		"nutrition": { "calories": 471, "protein": "10g", "carbs": "64g", "fat": "20g", "sodium": "10mg" }
+	},
+	{
+		"name": "Peas",
+		"isDefault": true,
+		"nutrition": { "calories": 81, "protein": "5.4g", "carbs": "14g", "fat": "0.4g", "sodium": "5mg" }
+	},
+	{
+		"name": "Iceberg Lettuce",
+		"isDefault": true,
+		"nutrition": { "calories": 14, "protein": "1g", "carbs": "2.9g", "fat": "0.1g", "sodium": "10mg" }
+	},
+	{
+		"name": "Tomato",
+		"isDefault": true,
+		"nutrition": { "calories": 18, "protein": "0.9g", "carbs": "3.9g", "fat": "0.2g", "sodium": "5mg" }
+	},
+	{
+		"name": "Carrot",
+		"isDefault": true,
+		"nutrition": { "calories": 41, "protein": "0.9g", "carbs": "10g", "fat": "0.2g", "sodium": "69mg" }
+	},
+	{
+		"name": "Peanut Butter",
+		"isDefault": true,
+		"nutrition": { "calories": 588, "protein": "25g", "carbs": "20g", "fat": "50g", "sodium": "438mg" }
+	},
+	{
+		"name": "Tuna",
+		"isDefault": true,
+		"nutrition": { "calories": 116, "protein": "26g", "carbs": "0g", "fat": "1g", "sodium": "37mg" }
+	},
+	{
+		"name": "Olive Oil",
+		"isDefault": true,
+		"nutrition": { "calories": 884, "protein": "0g", "carbs": "0g", "fat": "100g", "sodium": "2mg" }
+	},
+	{
+		"name": "Rye Bread",
+		"isDefault": true,
+		"nutrition": { "calories": 259, "protein": "8.5g", "carbs": "48g", "fat": "3.3g", "sodium": "598mg" }
+	},
+	{
+		"name": "Liver Paste",
+		"isDefault": true,
+		"nutrition": { "calories": 201, "protein": "14g", "carbs": "2.1g", "fat": "15g", "sodium": "370mg" }
+	},
+	{
+		"name": "Beetroot",
+		"isDefault": true,
+		"nutrition": { "calories": 43, "protein": "1.6g", "carbs": "10g", "fat": "0.2g", "sodium": "78mg" }
 	}
 ]

@@ -13,15 +13,11 @@ export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
 
 	const logs = await DailyLog.find({ userId })
 
-	if (!logs.length) {
-		throw new AsyncHandlerError('Daily logs not found', HTTP_STATUS.NOT_FOUND)
-	}
-
 	res.status(HTTP_STATUS.OK).json(logs)
 })
 
 // @desc Update meals on daily log
-// @route POST /api/dailyLogs
+// @route PUT /api/dailyLogs
 // @access Private
 export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id

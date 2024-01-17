@@ -8,7 +8,7 @@ const mealSchema = new Schema<IMeal<ObjectId>>(
 			type: String,
 			required: true
 		},
-		foodEntry: [
+		foodEntries: [
 			{
 				foodItem: {
 					type: Schema.Types.ObjectId,

@@ -49,10 +49,9 @@ export const foodItemValidator = [
 		}
 	}),
 	body('nutrition.calories').isNumeric().withMessage('Calories must be a number'),
-	body('nutrition.carbs').trim().notEmpty().withMessage('Carbs are required'),
-	body('nutrition.fiber').trim().notEmpty().withMessage('Fiber is required'),
-	body('nutrition.fat').trim().notEmpty().withMessage('Fat is required'),
 	body('nutrition.protein').trim().notEmpty().withMessage('Protein is required'),
+	body('nutrition.carbs').trim().notEmpty().withMessage('Carbs are required'),
+	body('nutrition.fat').trim().notEmpty().withMessage('Fat is required'),
 	body('nutrition.sodium').trim().notEmpty().withMessage('Sodium is required')
 ]
 
@@ -60,7 +59,15 @@ export const mealValidator = [
 	body('name').trim().notEmpty().withMessage('Meal name is required'),
 	body('foodEntry').isArray({ min: 1 }).withMessage('Food entry must be an non-empty array'),
 	body('foodEntry.*.foodItem').isMongoId().withMessage('Food item must be a valid Mongo ID'),
-	body('foodEntry.*.grams').isNumeric().withMessage('Grams must be a number')
+	body('foodEntry.*.grams').isNumeric().withMessage('Grams must be a number'),
+	body().custom(mealData => {
+		const isSaved = typeof mealData.isSavedInCollection === 'boolean'
+		const isRemoved = typeof mealData.isRemovedFromCollection === 'boolean'
+
+		if (isSaved === isRemoved) {
+			throw new Error('Either isSavedInCollection or isRemovedFromCollection must be provided, but not both')
+		}
+	})
 ]
 
 export const dailyLogValidator = [

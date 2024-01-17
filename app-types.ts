@@ -2,8 +2,7 @@ import { Request } from 'express'
 import { ObjectId } from 'mongodb'
 import { Date, Model, UpdateWriteOpResult } from 'mongoose'
 
-// Core application types
-
+// User related interfaces
 export interface IUser {
 	_id?: ObjectId
 	username: string
@@ -11,12 +10,16 @@ export interface IUser {
 	password: string
 }
 
+export interface IUserWithToken extends IUser {
+	token: string
+}
+
+// Nutrition and Food Item related interfaces
 export interface INutrition {
 	calories: number
-	carbs: string
-	fiber: string
-	fat: string
 	protein: string
+	carbs: string
+	fat: string
 	sodium: string
 }
 
@@ -29,34 +32,60 @@ export interface IFoodItem {
 	hiddenByUsers: ObjectId[]
 }
 
-export interface IFoodItemEntry<FoodType> {
-	foodItem: FoodType
+// Food Item Entry and Meal related interfaces
+type FoodTypeUnion = IFoodItem | ObjectId
+
+export interface IFoodItemEntry<T extends FoodTypeUnion> {
+	foodItem: T
 	grams: number
 }
 
-export interface IMeal<FoodType> {
+export interface IMeal<T extends FoodTypeUnion> {
 	_id?: ObjectId
 	name: string
-	foodEntry: IFoodItemEntry<FoodType>[]
+	foodEntries: IFoodItemEntry<T>[]
 	isDefault: boolean
 	userId?: ObjectId
 	hiddenByUsers: ObjectId[]
 }
 
-export interface IDailyLog<MealType> {
+// Meal Submission related types
+export type Create = 'Create'
+export type Update = 'Update'
+
+interface IMealSubmitCreate {
+	isSavedInCollection: boolean
+	isRemovedFromCollection: never
+}
+
+interface IMealSubmitUpdate {
+	isSavedInCollection: never
+	isRemovedFromCollection: boolean
+}
+
+export type IMealSubmit<T extends Create | Update> = Omit<IMeal<ObjectId>, 'hiddenByUsers' | 'isDefault'> &
+	(T extends Create ? IMealSubmitCreate : IMealSubmitUpdate)
+
+// Daily Log and Aggregated Log related types
+type MealTypeUnion = IMeal<IFoodItem> | ObjectId
+
+export interface IDailyLog<T extends MealTypeUnion> {
 	_id?: string
 	date: Date
 	userId: ObjectId
-	meals: {
-		breakfast: MealType[]
-		lunch: MealType[]
-		dinner: MealType[]
-		snacks: MealType[]
-	}
+	meals: IMealtimes<T>
 }
 
-// Modified types
+export interface IMealtimes<T> {
+	breakfast: T[]
+	lunch: T[]
+	dinner: T[]
+	snacks: T[]
+}
 
+export type AggregatedDailyLog = IDailyLog<IMeal<IFoodItem>>
+
+// Database Model and Request Extensions
 export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {
 	updateOneAndDeleteIfEmpty(
 		filter?: Record<string, any>,
@@ -73,8 +102,4 @@ export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {
 
 export interface ExtendedRequest extends Request {
 	user?: IUser
-}
-
-export interface UserWithToken extends IUser {
-	token: string
 }
