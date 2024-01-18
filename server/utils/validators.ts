@@ -1,6 +1,13 @@
 import { body, query } from 'express-validator'
-import { hasRequiredMealTimes, isEmailUnique, isUsernameUnique, isValidMealArray, isValidNutritionObject } from './helper-functions'
 import mongoose from 'mongoose'
+import {
+	hasRequiredMealTimes,
+	isFoodItemNameUnique,
+	isMealNameUnique,
+	isUserPropertyUnique,
+	isValidMealArray,
+	isValidNutritionObject
+} from './helper-functions'
 
 export const registrationValidator = [
 	body('username')
@@ -10,7 +17,7 @@ export const registrationValidator = [
 		.isLength({ min: 5 })
 		.withMessage('Username must be at least 5 characters long')
 		.custom(async username => {
-			const isUnique = await isUsernameUnique(username)
+			const isUnique = await isUserPropertyUnique('username', username)
 			if (!isUnique) {
 				throw new Error('Username is taken')
 			}
@@ -22,7 +29,7 @@ export const registrationValidator = [
 		.isEmail()
 		.withMessage('Invalid email format')
 		.custom(async email => {
-			const isUnique = await isEmailUnique(email)
+			const isUnique = await isUserPropertyUnique('email', email)
 			if (!isUnique) {
 				throw new Error('Email is already registered')
 			}
@@ -43,7 +50,17 @@ export const loginValidator = [
 ]
 
 export const foodItemValidator = [
-	body('name').trim().notEmpty().withMessage('Name is required'),
+	body('name')
+		.trim()
+		.notEmpty()
+		.withMessage('Name is required')
+		.custom(async foodName => {
+			const isUnique = await isFoodItemNameUnique(foodName)
+			if (!isUnique) {
+				throw new Error('Food name is taken. Please choose another')
+			}
+		}),
+	,
 	body('nutrition').custom(value => {
 		if (!isValidNutritionObject(value)) {
 			throw new Error('Invalid nutrition format')
@@ -57,7 +74,17 @@ export const foodItemValidator = [
 ]
 
 export const mealValidator = [
-	body('name').trim().notEmpty().withMessage('Meal name is required'),
+	body('name')
+		.trim()
+		.notEmpty()
+		.withMessage('Meal name is required')
+		.custom(async mealName => {
+			const isUnique = await isMealNameUnique(mealName)
+			if (!isUnique) {
+				throw new Error('Meal name is taken. Please choose another')
+			}
+		}),
+	,
 	body('foodEntry').isArray({ min: 1 }).withMessage('Food entry must be an non-empty array'),
 	body('foodEntry.*.foodItem').isMongoId().withMessage('Food item must be a valid Mongo ID'),
 	body('foodEntry.*.grams').isNumeric().withMessage('Grams must be a number'),
