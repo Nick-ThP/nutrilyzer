@@ -13,7 +13,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 	const { username, email, password }: IUser = req.body
 
 	// Check if user is already registered
-	const userAvailable: IUser = await User.findOne({ email })
+	const userAvailable = await User.findOne({ email })
 
 	if (userAvailable) {
 		throw new AsyncHandlerError('User is already registered', HTTP_STATUS.BAD_REQUEST)
@@ -22,7 +22,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 	// Hash password and create user in database
 	const hashedPassword = await bcrypt.hash(password, 10)
 
-	const user: IUser = await User.create({
+	const user = await User.create({
 		username,
 		email,
 		password: hashedPassword
@@ -51,7 +51,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 	const { email, password }: Omit<IUser, 'username'> = req.body
 
 	// Check if user's email is registered
-	const user: IUser = await User.findOne({ email })
+	const user = await User.findOne({ email })
 
 	if (!user) {
 		throw new AsyncHandlerError('User does not exist', HTTP_STATUS.BAD_REQUEST)

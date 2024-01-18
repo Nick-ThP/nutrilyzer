@@ -1,5 +1,6 @@
-import { body } from 'express-validator'
+import { body, query } from 'express-validator'
 import { hasRequiredMealTimes, isEmailUnique, isUsernameUnique, isValidMealArray, isValidNutritionObject } from './helper-functions'
+import mongoose from 'mongoose'
 
 export const registrationValidator = [
 	body('username')
@@ -97,4 +98,15 @@ export const dailyLogValidator = [
 			throw new Error('Invalid snacks array')
 		}
 	})
+]
+
+export const validateIdsInQueryString = [
+	query('ids')
+		.isString()
+		.withMessage('IDs must be a comma-separated string')
+		.custom(value => {
+			const ids = value.split(',')
+			return ids.every((id: string) => mongoose.Types.ObjectId.isValid(id))
+		})
+		.withMessage('Each ID must be a valid MongoDB ObjectId')
 ]

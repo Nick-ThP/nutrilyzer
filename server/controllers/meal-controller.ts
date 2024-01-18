@@ -10,11 +10,13 @@ import { HTTP_STATUS } from '../utils/http-messages'
 // @desc Get all meals for a user
 // @route GET /api/meals/
 // @access Private
-export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res) => {
+export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res, next) => {
+	if (req.query.ids) return next()
+
 	const userId = req.user?._id
 
 	// Check if the user has at least one meal available to them
-	const meals: IMeal<ObjectId>[] = await Meal.find({ $or: [{ userId }, { isDefault: true }] })
+	const meals = await Meal.find({ $or: [{ userId }, { isDefault: true }] })
 
 	if (!meals.length) {
 		throw new AsyncHandlerError('No meals found for the user', HTTP_STATUS.NOT_FOUND)
@@ -24,12 +26,12 @@ export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res) => {
 })
 
 // @desc Get multiple meals by ID's
-// @route GET /api/meals/
+// @route GET /api/meals?ids=id1,id2,id3
 // @access Private
 export const getMealsByIds = asyncHandler(async (req: ExtendedRequest, res) => {
-	const mealIds: ObjectId[] = req.body.mealIds
+	const mealIds: ObjectId[] = (req.query.ids as string).split(',').map(id => new mongoose.Types.ObjectId(id))
 
-	const meals: IMeal<ObjectId>[] = await Meal.find({ _id: { $in: mealIds } })
+	const meals = await Meal.find({ _id: { $in: mealIds } })
 
 	if (!meals.length) {
 		throw new AsyncHandlerError('Could not find meals with the provided ids', HTTP_STATUS.NOT_FOUND)
@@ -47,7 +49,7 @@ export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const visibility = isSavedInCollection ? { hiddenByUsers: [] } : { hiddenByUsers: [userId] }
 
 	// Create a new meal
-	const newMeal: IMeal<ObjectId> = await Meal.create({ userId, name, foodEntries, isDefault: false, visibility })
+	const newMeal = await Meal.create({ userId, name, foodEntries, isDefault: false, visibility })
 
 	if (!newMeal) {
 		throw new AsyncHandlerError('Meal could not be created', HTTP_STATUS.SERVER_ERROR)
