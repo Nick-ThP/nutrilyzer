@@ -16,12 +16,7 @@ export const getAllFoodItems = asyncHandler(async (req: ExtendedRequest, res, ne
 
 	const userId = req.user?._id
 
-	// Check if the user has at least one food item available to them
 	const foodItems = await FoodItem.find({ $or: [{ userId }, { isDefault: true }] })
-
-	if (!foodItems.length) {
-		throw new AsyncHandlerError('No food items found for the user', HTTP_STATUS.NOT_FOUND)
-	}
 
 	res.status(HTTP_STATUS.OK).json(foodItems)
 })
@@ -97,29 +92,25 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 
 		// Check if it's default or not
 		if (foodItem.isDefault && userId) {
-			// If isDefault is true, hide the food item by adding the user ID to hiddenByUsers
 			foodItem.hiddenByUsers.push(userId)
 			await foodItem.save({ session })
 		} else {
-			// If isDefault is false, delete the food item
 			await FoodItem.findByIdAndDelete(foodItemId, { session })
 		}
 
-		// Now, update or delete associated Meals
-		const mealsToUpdateOrDelete = await Meal.find({ userId, 'foodEntry.foodItem': foodItemId }, null, { session })
+		// Update or delete associated Meals
+		const mealsToUpdateOrDelete = await Meal.find({ 'foodEntries.foodItem': foodItemId }, null, { session })
 
 		for (const meal of mealsToUpdateOrDelete) {
 			if (foodItem.isDefault && userId) {
-				// If isDefault is true, hide the meal by adding the user ID to hiddenByUsers
 				meal.hiddenByUsers.push(userId)
 				await meal.save({ session })
 			} else {
-				// If isDefault is false, delete the meal
 				await Meal.findByIdAndDelete(meal._id, { session })
 			}
 		}
 
-		// Now, update or delete associated DailyLogs for all mealtimes
+		// Update or delete associated DailyLogs
 		const mealIdsToDelete = mealsToUpdateOrDelete.map(meal => meal._id)
 		const mealtimes = ['breakfast', 'lunch', 'dinner', 'snacks']
 

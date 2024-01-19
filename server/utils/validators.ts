@@ -2,6 +2,7 @@ import { body, query } from 'express-validator'
 import mongoose from 'mongoose'
 import {
 	hasRequiredMealTimes,
+	isMealBeingSavedOrRemoved,
 	isUserPropertyUnique,
 	isValidMacronutrientWithUnit,
 	isValidMealArray,
@@ -61,46 +62,30 @@ export const foodItemValidator = [
 
 export const mealValidator = [
 	body('name').trim().notEmpty().withMessage('Meal name is required'),
-	body('foodEntry').isArray({ min: 1 }).withMessage('Food entry must be an non-empty array'),
-	body('foodEntry.*.foodItem').isMongoId().withMessage('Food item must be a valid Mongo ID'),
-	body('foodEntry.*.grams').isNumeric().withMessage('Grams must be a number'),
-	body().custom(mealData => {
-		const isSaved = typeof mealData.isSavedInCollection === 'boolean'
-		const isRemoved = typeof mealData.isRemovedFromCollection === 'boolean'
-
-		if (isSaved === isRemoved) {
-			throw new Error('Either isSavedInCollection or isRemovedFromCollection must be provided, but not both')
-		}
-	})
+	body('foodEntries').isArray({ min: 1 }).withMessage('Food entry must be an non-empty array'),
+	body('foodEntries.*.foodItem').isMongoId().withMessage('Food item must be a valid Mongo ID'),
+	body('foodEntries.*.grams').isNumeric().withMessage('Grams must be a number'),
+	body().custom(isMealBeingSavedOrRemoved)
 ]
 
 export const dailyLogValidator = [
-	body('date').isISO8601().withMessage('Invalid date format'),
-	body('meals').custom(value => {
-		if (!hasRequiredMealTimes(value)) {
-			throw new Error('Invalid meals array')
-		}
-	}),
-	body('meals.breakfast').custom(value => {
-		if (!isValidMealArray(value)) {
-			throw new Error('Invalid breakfast array')
-		}
-	}),
-	body('meals.lunch').custom(value => {
-		if (!isValidMealArray(value)) {
-			throw new Error('Invalid lunch array')
-		}
-	}),
-	body('meals.dinner').custom(value => {
-		if (!isValidMealArray(value)) {
-			throw new Error('Invalid dinner array')
-		}
-	}),
-	body('meals.snacks').custom(value => {
-		if (!isValidMealArray(value)) {
-			throw new Error('Invalid snacks array')
-		}
-	})
+	body('date')
+		.matches(/^\d{8}$/)
+		.withMessage('Date must be in MMDDYYYY format with 8 digits')
+		.custom(value => {
+			const month = parseInt(value.substring(0, 2), 10)
+			const day = parseInt(value.substring(2, 4), 10)
+			const year = parseInt(value.substring(4, 8), 10)
+
+			const date = new Date(year, month - 1, day)
+			return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+		})
+		.withMessage('Invalid date'),
+	body('meals').custom(hasRequiredMealTimes),
+	body('meals.breakfast').custom(isValidMealArray),
+	body('meals.lunch').custom(isValidMealArray),
+	body('meals.dinner').custom(isValidMealArray),
+	body('meals.snacks').custom(isValidMealArray)
 ]
 
 export const validateIdsInQueryString = [

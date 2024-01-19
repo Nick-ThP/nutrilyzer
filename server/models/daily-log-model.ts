@@ -5,7 +5,7 @@ import { isLoggedMealsEmpty } from '../utils/helper-functions'
 const dailyLogSchema = new Schema<IDailyLog<mongoose.Types.ObjectId>>(
 	{
 		date: {
-			type: Date,
+			type: String,
 			required: true
 		},
 		userId: {
@@ -79,25 +79,27 @@ dailyLogSchema.statics.updateManyAndDeleteIfEmpty = async function (
 ) {
 	try {
 		// Perform the bulk update
-		const updatedLogs = await this.updateMany(filter, update, options)
+		await this.updateMany(filter, update, options)
 
-		// Find all logs that match the filter after the update
-		const foundLogs = await this.find(filter)
+		// Identify logs that could be empty after the update
+		// This might require a different filter based on the nature of the update
+		const potentiallyEmptyLogs = await this.find({
+			/* Adjusted filter */
+		})
 
 		// Check each log to see if it should be deleted
-		for (const log of foundLogs) {
+		for (const log of potentiallyEmptyLogs) {
 			if (isLoggedMealsEmpty(log.meals)) {
 				const deleteResult = await this.deleteOne({ _id: log._id })
-
 				if (deleteResult.deletedCount === 0) {
 					console.error(`Failed to delete ${log._id} after finding it empty`)
 				}
 			}
 		}
 
-		return updatedLogs
+		// Return some status or result if needed
 	} catch (error) {
-		console.error('Error in bulkUpdateAndDeleteIfEmpty:', error)
+		console.error('Error in updateManyAndDeleteIfEmpty:', error)
 		throw error
 	}
 }

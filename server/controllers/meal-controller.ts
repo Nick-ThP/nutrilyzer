@@ -15,12 +15,7 @@ export const getAllMeals = asyncHandler(async (req: ExtendedRequest, res, next) 
 
 	const userId = req.user?._id
 
-	// Check if the user has at least one meal available to them
 	const meals = await Meal.find({ $or: [{ userId }, { isDefault: true }] })
-
-	if (!meals.length) {
-		throw new AsyncHandlerError('No meals found for the user', HTTP_STATUS.NOT_FOUND)
-	}
 
 	res.status(HTTP_STATUS.OK).json(meals)
 })
@@ -105,7 +100,7 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 			await Meal.findByIdAndDelete(mealId, { session })
 		}
 
-		// Now, update or delete associated DailyLogs for all mealtimes
+		// Update or delete associated DailyLogs for all mealtimes
 		const mealtimes = ['breakfast', 'lunch', 'dinner', 'snacks']
 
 		for (const mealtime of mealtimes) {
@@ -128,3 +123,4 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 		session.endSession()
 	}
 })
+

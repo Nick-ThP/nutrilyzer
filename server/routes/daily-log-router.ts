@@ -8,4 +8,4 @@ export const dailyLogRouter = express.Router()
 
 dailyLogRouter.route('/').get(authenticate, getAllLogs).put(authenticate, validateRequest(dailyLogValidator), updateLog)
 
-dailyLogRouter.route('/:logId').get(authenticate, getLogDetails)
+dailyLogRouter.route('/:logDate').get(authenticate, getLogDetails)

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { ObjectId } from 'mongodb'
-import { INutrition, IUser } from '../../app-types'
+import { Create, IMealSubmit, INutrition, IUser, Update } from '../../app-types'
 import { User } from '../models/user-model'
 import { AsyncHandlerError } from './async-handler-error'
 import { HTTP_STATUS } from './http-messages'
@@ -9,18 +9,25 @@ export const generateAuthToken = (user: Omit<IUser, 'email' | 'password'>) => {
 	return jwt.sign({ user }, process.env.JWT_SECRET as string, { expiresIn: '30d' })
 }
 
-export function isLoggedMealsEmpty(meals: Record<string, ObjectId[] | []>) {
-	return Object.values(meals).every(mealArray => mealArray.length === 0)
-}
-
-export const isValidMealArray = (meals: ObjectId[] | []) => {
-	return Array.isArray(meals) && (meals.length === 0 || meals.every(ObjectId.isValid))
+export const isLoggedMealsEmpty = (meals: Record<string, ObjectId[] | []>) => {
+	return ['breakfast', 'lunch', 'dinner', 'snacks'].every(mealType => !meals[mealType] || meals[mealType].length === 0)
 }
 
 export const hasRequiredMealTimes = (meals: Record<string, ObjectId[] | []>) => {
 	const requiredMeals = ['breakfast', 'lunch', 'dinner', 'snacks']
+	if (!requiredMeals.every(meal => Array.isArray(meals[meal]))) {
+		throw new Error('Invalid meals array')
+	}
 
-	return requiredMeals.every(meal => Array.isArray(meals[meal]))
+	return true
+}
+
+export const isValidMealArray = (meals: ObjectId[] | []) => {
+	if (!meals.every(ObjectId.isValid)) {
+		throw new Error(`Invalid ${meals} array`)
+	}
+
+	return true
 }
 
 export const isValidNutritionObject = (nutrition: INutrition) => {
@@ -44,7 +51,7 @@ export const isUserPropertyUnique = async (key: string, value: string) => {
 	}
 }
 
-export function isValidMacronutrientWithUnit(value: string) {
+export const isValidMacronutrientWithUnit = (value: string) => {
 	const regex = /^\d+g$/
 
 	if (value === undefined) {
@@ -58,11 +65,22 @@ export function isValidMacronutrientWithUnit(value: string) {
 	return true
 }
 
-export function isValidMicronutrientWithUnit(value: string) {
+export const isValidMicronutrientWithUnit = (value: string) => {
 	const regex = /^\d+mg$/
 
 	if (!regex.test(value)) {
 		throw new Error(`${value} is an invalid format for micronutrients. Please use milligrams (mg)`)
+	}
+
+	return true
+}
+
+export const isMealBeingSavedOrRemoved = (mealData: IMealSubmit<Create | Update>) => {
+	const isSaved = typeof mealData.isSavedInCollection === 'boolean'
+	const isRemoved = typeof mealData.isRemovedFromCollection === 'boolean'
+
+	if (isSaved === isRemoved) {
+		throw new Error('Either isSavedInCollection or isRemovedFromCollection must be provided, but not both')
 	}
 
 	return true

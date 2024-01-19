@@ -1,9 +1,11 @@
 import asyncHandler from 'express-async-handler'
 import { ObjectId } from 'mongodb'
+import mongoose from 'mongoose'
 import { ExtendedRequest, IDailyLog } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
+import { FoodItem } from '../models/food-item-model'
 
 // @desc Get all daily logs
 // @route GET /api/dailyLogs
@@ -47,167 +49,63 @@ export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 })
 
 // @desc Get a specific daily log (with meal and food item aggregation)
-// @route GET /api/dailyLogs/:logId
+// @route GET /api/dailyLogs/:logDate
 // @access Private
 export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const logId = req.params.logId
+	const logDate = req.params.logDate
 
 	const log = await DailyLog.aggregate([
 		{
 			$match: {
-				_id: new ObjectId(logId),
-				userId: new ObjectId(userId)
+				date: logDate,
+				userId: new mongoose.Types.ObjectId(userId)
 			}
 		},
-
-		// Start the aggregation by unwinding the mealtimes
-		{
-			$unwind: {
-				path: '$meals.breakfast',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$unwind: {
-				path: '$meals.lunch',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$unwind: {
-				path: '$meals.dinner',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$unwind: {
-				path: '$meals.snacks',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-
-		// Lookup the meals with the id's on the log
-		{
-			$lookup: {
-				from: 'meals',
-				localField: 'meals.breakfast',
-				foreignField: '_id',
-				as: 'meals.breakfastDetails'
-			}
-		},
-		{
-			$lookup: {
-				from: 'meals',
-				localField: 'meals.lunch',
-				foreignField: '_id',
-				as: 'meals.lunchDetails'
-			}
-		},
-		{
-			$lookup: {
-				from: 'meals',
-				localField: 'meals.dinner',
-				foreignField: '_id',
-				as: 'meals.dinnerDetails'
-			}
-		},
-		{
-			$lookup: {
-				from: 'meals',
-				localField: 'meals.snacks',
-				foreignField: '_id',
-				as: 'meals.snacksDetails'
-			}
-		},
-
-		// Unwinding the found meals themselves
-		{
-			$unwind: {
-				path: '$meals.breakfastDetails.foodEntry',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$unwind: {
-				path: '$meals.lunchDetails.foodEntry',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$unwind: {
-				path: '$meals.dinnerDetails.foodEntry',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$unwind: {
-				path: '$meals.snacksDetails.foodEntry',
-				preserveNullAndEmptyArrays: true
-			}
-		},
-
-		// Lookup the food details with the id's on the meals
-		{
-			$lookup: {
-				from: 'fooditems',
-				localField: 'meals.breakfastDetails.foodEntry.foodItem',
-				foreignField: '_id',
-				as: 'meals.breakfastDetails.foodEntry.foodItemDetails'
-			}
-		},
-		{
-			$lookup: {
-				from: 'fooditems',
-				localField: 'meals.lunchDetails.foodEntry.foodItem',
-				foreignField: '_id',
-				as: 'meals.lunchDetails.foodEntry.foodItemDetails'
-			}
-		},
-		{
-			$lookup: {
-				from: 'fooditems',
-				localField: 'meals.dinnerDetails.foodEntry.foodItem',
-				foreignField: '_id',
-				as: 'meals.dinnerDetails.foodEntry.foodItemDetails'
-			}
-		},
-		{
-			$lookup: {
-				from: 'fooditems',
-				localField: 'meals.snacksDetails.foodEntry.foodItem',
-				foreignField: '_id',
-				as: 'meals.snacksDetails.foodEntry.foodItemDetails'
-			}
-		},
-
-		// Grouping everything back together
-		{
-			$group: {
-				_id: '$_id',
-				date: {
-					$first: '$date'
-				},
-				userId: {
-					$first: '$userId'
-				},
-				breakfast: {
-					$push: '$meals.breakfastDetails'
-				},
-				lunch: {
-					$push: '$meals.lunchDetails'
-				},
-				dinner: {
-					$push: '$meals.dinnerDetails'
-				},
-				snacks: {
-					$push: '$meals.snacksDetails'
-				}
-			}
-		}
+		...['breakfast', 'lunch', 'dinner', 'snacks'].map(mealType => ({
+        $lookup: {
+            from: 'meals',
+            localField: `meals.${mealType}`,
+            foreignField: '_id',
+            as: `meals.${mealType}`
+        }
+    })),
+    {
+        $project: {
+            date: 1,
+            userId: 1,
+            'meals.breakfast': 1,
+            'meals.lunch': 1,
+            'meals.dinner': 1,
+            'meals.snacks': 1
+        }
+    }
 	])
 
-	if (!log.length) {
+	async function enrichMealWithFoodItems(meal) {
+		if (!meal || !meal.foodEntries) {
+			return meal
+		}
+
+		for (const entry of meal.foodEntries) {
+			if (entry.foodItem) {
+				const foodItemDetails = await FoodItem.findById(entry.foodItem)
+				entry.foodItemDetails = foodItemDetails
+			}
+		}
+
+		return meal
+	}
+
+	for (const mealType of ['breakfast', 'lunch', 'dinner', 'snacks']) {
+		if (log[0].meals[mealType]) {
+			for (let i = 0; i < log[0].meals[mealType].length; i++) {
+				log[0].meals[mealType][i] = await enrichMealWithFoodItems(log[0].meals[mealType][i])
+			}
+		}
+	}
+
+	if (!log || !log.length) {
 		throw new AsyncHandlerError('Daily log not found', HTTP_STATUS.NOT_FOUND)
 	}
 
