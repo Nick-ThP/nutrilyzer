@@ -48,7 +48,6 @@ export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) 
 export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const { name, nutrition }: IFoodItemSubmit  = req.body
-	console.log('Line 51 - food-item-controller')
 
 	// Create a new food item
 	const newFoodItem = await FoodItem.create({ userId, name, nutrition, isDefault: false })

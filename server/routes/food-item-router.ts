@@ -13,6 +13,6 @@ foodItemRouter
 	.post(authenticate, validateRequest(foodItemValidator), createFoodItem)
 
 foodItemRouter
-	.route('/:foodItemid')
+	.route('/:foodItemId')
 	.put(authenticate, validateRequest(foodItemValidator), updateFoodItem)
 	.delete(authenticate, deleteFoodItem)

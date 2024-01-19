@@ -2,10 +2,10 @@ import { body, query } from 'express-validator'
 import mongoose from 'mongoose'
 import {
 	hasRequiredMealTimes,
-	isFoodItemNameUnique,
-	isMealNameUnique,
 	isUserPropertyUnique,
+	isValidMacronutrientWithUnit,
 	isValidMealArray,
+	isValidMicronutrientWithUnit,
 	isValidNutritionObject
 } from './helper-functions'
 
@@ -50,41 +50,17 @@ export const loginValidator = [
 ]
 
 export const foodItemValidator = [
-	body('name')
-		.trim()
-		.notEmpty()
-		.withMessage('Name is required')
-		.custom(async foodName => {
-			const isUnique = await isFoodItemNameUnique(foodName)
-			if (!isUnique) {
-				throw new Error('Food name is taken. Please choose another')
-			}
-		}),
-	,
-	body('nutrition').custom(value => {
-		if (!isValidNutritionObject(value)) {
-			throw new Error('Invalid nutrition format')
-		}
-	}),
+	body('name').trim().notEmpty().withMessage('Name is required'),
+	body('nutrition').custom(isValidNutritionObject),
 	body('nutrition.calories').isNumeric().withMessage('Calories must be a number'),
-	body('nutrition.protein').trim().notEmpty().withMessage('Protein is required'),
-	body('nutrition.carbs').trim().notEmpty().withMessage('Carbs are required'),
-	body('nutrition.fat').trim().notEmpty().withMessage('Fat is required'),
-	body('nutrition.sodium').trim().notEmpty().withMessage('Sodium is required')
+	body('nutrition.protein').custom(isValidMacronutrientWithUnit),
+	body('nutrition.carbs').custom(isValidMacronutrientWithUnit),
+	body('nutrition.fat').custom(isValidMacronutrientWithUnit),
+	body('nutrition.sodium').custom(isValidMicronutrientWithUnit)
 ]
 
 export const mealValidator = [
-	body('name')
-		.trim()
-		.notEmpty()
-		.withMessage('Meal name is required')
-		.custom(async mealName => {
-			const isUnique = await isMealNameUnique(mealName)
-			if (!isUnique) {
-				throw new Error('Meal name is taken. Please choose another')
-			}
-		}),
-	,
+	body('name').trim().notEmpty().withMessage('Meal name is required'),
 	body('foodEntry').isArray({ min: 1 }).withMessage('Food entry must be an non-empty array'),
 	body('foodEntry.*.foodItem').isMongoId().withMessage('Food item must be a valid Mongo ID'),
 	body('foodEntry.*.grams').isNumeric().withMessage('Grams must be a number'),
