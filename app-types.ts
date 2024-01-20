@@ -1,5 +1,6 @@
 import { Request } from 'express'
 import { ObjectId } from 'mongodb'
+import mongoose from 'mongoose'
 import { Date, Model, UpdateWriteOpResult } from 'mongoose'
 
 // User related interfaces
@@ -79,7 +80,7 @@ export interface IDailyLog<T extends Aggregated | ObjectId> {
 	meals: Meals<T>
 }
 
-type Meals<T> = {
+export type Meals<T> = {
 	breakfast: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
 	lunch: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
 	dinner: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
@@ -97,7 +98,9 @@ export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {
 	updateManyAndDeleteIfEmpty(
 		filter?: Record<string, any>,
 		update?: Record<string, any>,
-		options?: Record<string, any>
+		options?: Record<string, any>,
+		session?: mongoose.mongo.ClientSession,
+		mealIdsToDelete?: ObjectId[]
 	): Promise<UpdateWriteOpResult>
 }
 

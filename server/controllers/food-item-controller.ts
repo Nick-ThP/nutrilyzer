@@ -7,6 +7,7 @@ import { Meal } from '../models/meal-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
 import { ObjectId } from 'mongodb'
+import { isLoggedMealsEmpty } from '../utils/helper-functions'
 
 // @desc Get all food items for a user
 // @route GET /api/foodItems
@@ -83,14 +84,11 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 		const userId = req.user?._id
 		const foodItemId = req.params.foodItemId
 
-		// Find the food item
 		const foodItem = await FoodItem.findOne({ userId, _id: foodItemId }).session(session)
-
 		if (!foodItem) {
 			throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 		}
 
-		// Check if it's default or not
 		if (foodItem.isDefault && userId) {
 			foodItem.hiddenByUsers.push(userId)
 			await foodItem.save({ session })
@@ -98,8 +96,8 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 			await FoodItem.findByIdAndDelete(foodItemId, { session })
 		}
 
-		// Update or delete associated Meals
 		const mealsToUpdateOrDelete = await Meal.find({ 'foodEntries.foodItem': foodItemId }, null, { session })
+		const mealIdsToDelete = mealsToUpdateOrDelete.map(meal => meal._id)
 
 		for (const meal of mealsToUpdateOrDelete) {
 			if (foodItem.isDefault && userId) {
@@ -110,27 +108,30 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 			}
 		}
 
-		// Update or delete associated DailyLogs
-		const mealIdsToDelete = mealsToUpdateOrDelete.map(meal => meal._id)
 		const mealtimes = ['breakfast', 'lunch', 'dinner', 'snacks']
-
 		for (const mealtime of mealtimes) {
-			await DailyLog.updateManyAndDeleteIfEmpty(
+			await DailyLog.updateMany(
 				{ [`meals.${mealtime}`]: { $in: mealIdsToDelete }, userId },
 				{ $pull: { [`meals.${mealtime}`]: { $in: mealIdsToDelete } } },
 				{ session }
 			)
 		}
 
-		// Commit the transaction
+		const userDailyLogs = await DailyLog.find({ userId }).session(session)
+		for (const dailyLog of userDailyLogs) {
+			if (isLoggedMealsEmpty(dailyLog.meals)) {
+				await DailyLog.deleteOne({ _id: dailyLog._id }, { session })
+			}
+		}
+
 		await session.commitTransaction()
 		res.status(HTTP_STATUS.OK).json({ message: 'Food item and related data processed successfully' })
 	} catch (error) {
-		// If an error occurs, abort the transaction
 		await session.abortTransaction()
 		throw new AsyncHandlerError(error.message, HTTP_STATUS.SERVER_ERROR)
 	} finally {
-		// End the session
 		session.endSession()
 	}
 })
+
+

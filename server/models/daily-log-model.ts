@@ -71,47 +71,4 @@ dailyLogSchema.statics.updateOneAndDeleteIfEmpty = async function (
 	}
 }
 
-// Custom static method for updating and handling post-update logic in bulk
-dailyLogSchema.statics.updateManyAndDeleteIfEmpty = async function (
-	filter: Record<string, any>,
-	update: Record<string, any>,
-	options: Record<string, any> = {},
-	session = null
-) {
-	try {
-		const sessionOptions = session ? { ...options, session } : options
-
-		// Perform the bulk update
-		const updateResult = await this.updateMany(filter, update, sessionOptions)
-		console.log(`Update result: ${JSON.stringify(updateResult)}`)
-
-		if (updateResult.modifiedCount === 0) {
-			console.log('No documents were updated, so no need to check for deletion.')
-			return
-		}
-
-		// Retrieve all logs that were potentially affected by the update
-		const potentiallyEmptyLogs = await this.find(filter).session(session)
-
-		// Detailed logging and deletion
-		for (const log of potentiallyEmptyLogs) {
-			console.log(`Checking log ${log._id} for emptiness.`)
-			if (isLoggedMealsEmpty(log.meals)) {
-				console.log(`Log ${log._id} is empty. Attempting deletion.`)
-				const deleteResult = await this.deleteOne({ _id: log._id }, { session })
-				if (deleteResult.deletedCount === 0) {
-					console.error(`Failed to delete empty log with ID: ${log._id}`)
-				} else {
-					console.log(`Successfully deleted empty log with ID: ${log._id}`)
-				}
-			} else {
-				console.log(`Log ${log._id} is not empty. No deletion needed.`)
-			}
-		}
-	} catch (error) {
-		console.error('Error in updateManyAndDeleteIfEmpty:', error)
-		throw error
-	}
-}
-
 export const DailyLog = mongoose.model<IDailyLog<mongoose.Types.ObjectId>, IDailyLogModel>('DailyLog', dailyLogSchema)

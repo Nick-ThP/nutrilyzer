@@ -7,6 +7,7 @@ import { FoodItem } from '../models/food-item-model'
 import { Meal } from '../models/meal-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
+import { isLoggedMealsEmpty } from '../utils/helper-functions'
 
 // @desc Get all meals for a user
 // @route GET /api/meals/
@@ -93,43 +94,40 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 		const userId = req.user?._id
 		const mealId = req.params.mealId
 
-		// Find the meal
 		const meal = await Meal.findOne({ userId, _id: mealId }).session(session)
-
 		if (!meal) {
 			throw new AsyncHandlerError('Meal not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
 		}
 
-		// Check if it's default or not
 		if (meal.isDefault && userId) {
-			// If isDefault is true, hide the meal by adding the user ID to hiddenByUsers
 			meal.hiddenByUsers.push(userId)
 			await meal.save({ session })
 		} else {
-			// If isDefault is false, delete the meal
 			await Meal.findByIdAndDelete(mealId, { session })
 		}
 
-		// Update or delete associated DailyLogs for all mealtimes
 		const mealtimes = ['breakfast', 'lunch', 'dinner', 'snacks']
-
 		for (const mealtime of mealtimes) {
-			await DailyLog.updateManyAndDeleteIfEmpty(
-				{ [`meals.${mealtime}`]: mealId, userId },
-				{ $pull: { [`meals.${mealtime}`]: mealId } },
-				{ session }
-			)
+			const dailyLogsToUpdate = await DailyLog.find({ [`meals.${mealtime}`]: mealId, userId }, null, { session })
+
+			for (const dailyLog of dailyLogsToUpdate) {
+				const update = { $pull: { [`meals.${mealtime}`]: mealId } }
+				const updatedLog = await DailyLog.findOneAndUpdate({ _id: dailyLog._id }, update, { new: true, session })
+
+				if (updatedLog && isLoggedMealsEmpty(updatedLog.meals)) {
+					await DailyLog.deleteOne({ _id: updatedLog._id }, { session })
+				}
+			}
 		}
 
-		// Commit the transaction
 		await session.commitTransaction()
 		res.status(HTTP_STATUS.OK).json({ message: 'Meal and related data processed successfully' })
 	} catch (error) {
-		// If an error occurs, abort the transaction
 		await session.abortTransaction()
 		throw new AsyncHandlerError(error.message, HTTP_STATUS.SERVER_ERROR)
 	} finally {
-		// End the session
 		session.endSession()
 	}
 })
+
+

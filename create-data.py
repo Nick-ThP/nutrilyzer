@@ -1,6 +1,12 @@
 import requests
 import datetime
 import sys
+from dotenv import load_dotenv
+import os
+
+# Specify the path to your .env.development file
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env.development')
+load_dotenv(dotenv_path)
 
 def create_food_item(server_url, token, user_id, food_item_details):
     url = f"{server_url}/api/foodItems"
@@ -22,7 +28,7 @@ def create_meal(server_url, token, user_id, meal_name, food_item_id):
         'userId': user_id,
         'name': meal_name,
         'foodEntries': [{'foodItem': food_item_id, 'grams': 100}],
-        'isSavedInCollection': True  # Adjust as per your API requirement
+        'isSavedInCollection': True
     }
     response = requests.post(url, json=data, headers=headers)
     return response.json()
@@ -33,13 +39,12 @@ def add_meal_to_daily_log(server_url, token, user_id, meal_id):
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {token}'
     }
-    today = datetime.datetime.now().strftime('%m%d%Y')  # Changed date format
+    today = datetime.datetime.now().strftime('%m%d%Y')
     data = {
         'userId': user_id,
         'date': today,
         'meals': {
-            # Assuming the API expects an object with meal types as keys
-            'breakfast': [meal_id],  # Example, adjust according to your API
+            'breakfast': [meal_id],
             'lunch': [],
             'dinner': [],
             'snacks': []
@@ -50,12 +55,12 @@ def add_meal_to_daily_log(server_url, token, user_id, meal_id):
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: python nutrilyzer_interaction.py <userId> <token>")
+        print("Usage: python create-data.py <userId> <token>")
         sys.exit(1)
 
-    server_url = 'http://localhost:3050'  # Your server URL
-    user_id = sys.argv[1]  # User ID from command line argument
-    token = sys.argv[2]    # Token from command line argument
+    server_url = os.getenv('VITE_API_URL')
+    user_id = sys.argv[1]
+    token = sys.argv[2]
 
     food_item_details = {
         'name': 'Apple',
@@ -70,17 +75,14 @@ def main():
     }
     meal_name = 'Healthy Breakfast'
 
-    # Create Food Item
     food_item = create_food_item(server_url, token, user_id, food_item_details)
     print(f"Food item created: {food_item}")
 
     if '_id' in food_item:
-        # Create Meal
         meal = create_meal(server_url, token, user_id, meal_name, food_item['_id'])
         print(f"Meal created: {meal}")
 
         if '_id' in meal:
-            # Add Meal to Daily Log
             log = add_meal_to_daily_log(server_url, token, user_id, meal['_id'])
             print(f"Meal added to daily log: {log}")
         else:
