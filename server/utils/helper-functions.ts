@@ -52,7 +52,7 @@ export const isUserPropertyUnique = async (key: string, value: string) => {
 }
 
 export const isValidMacronutrientWithUnit = (value: string) => {
-	const regex = /^\d+g$/
+	const regex = /^\d+(\.\d+)?g$/
 
 	if (value === undefined) {
 		throw new Error('Required information is missing from nutrition object')
@@ -66,7 +66,7 @@ export const isValidMacronutrientWithUnit = (value: string) => {
 }
 
 export const isValidMicronutrientWithUnit = (value: string) => {
-	const regex = /^\d+mg$/
+	const regex = /^\d+(\.\d+)?mg$/
 
 	if (!regex.test(value)) {
 		throw new Error(`${value} is an invalid format for micronutrients. Please use milligrams (mg)`)

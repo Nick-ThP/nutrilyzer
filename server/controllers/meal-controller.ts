@@ -1,8 +1,9 @@
 import asyncHandler from 'express-async-handler'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
-import { Create, ExtendedRequest, IMeal, IMealSubmit, Update } from '../../app-types'
+import { Create, ExtendedRequest, IMealSubmit, Update } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
+import { FoodItem } from '../models/food-item-model'
 import { Meal } from '../models/meal-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
@@ -42,6 +43,15 @@ export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const { name, foodEntries, isSavedInCollection }: IMealSubmit<Create> = req.body
 	const visibility = isSavedInCollection ? { hiddenByUsers: [] } : { hiddenByUsers: [userId] }
+
+	const foodItemPromises = foodEntries.map(entry => FoodItem.find({ _id: entry.foodItem }))
+	const foodItems = await Promise.all(foodItemPromises)
+
+	foodItems.forEach((found, index) => {
+		if (!found || found.length === 0) {
+			throw new AsyncHandlerError(`Food item not found for entry at index ${index}`, HTTP_STATUS.SERVER_ERROR)
+		}
+	})
 
 	// Create a new meal
 	const newMeal = await Meal.create({ userId, name, foodEntries, isDefault: false, visibility })
@@ -123,4 +133,3 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 		session.endSession()
 	}
 })
-

@@ -75,29 +75,39 @@ dailyLogSchema.statics.updateOneAndDeleteIfEmpty = async function (
 dailyLogSchema.statics.updateManyAndDeleteIfEmpty = async function (
 	filter: Record<string, any>,
 	update: Record<string, any>,
-	options: Record<string, any>
+	options: Record<string, any> = {},
+	session = null
 ) {
 	try {
+		const sessionOptions = session ? { ...options, session } : options
+
 		// Perform the bulk update
-		await this.updateMany(filter, update, options)
+		const updateResult = await this.updateMany(filter, update, sessionOptions)
+		console.log(`Update result: ${JSON.stringify(updateResult)}`)
 
-		// Identify logs that could be empty after the update
-		// This might require a different filter based on the nature of the update
-		const potentiallyEmptyLogs = await this.find({
-			/* Adjusted filter */
-		})
-
-		// Check each log to see if it should be deleted
-		for (const log of potentiallyEmptyLogs) {
-			if (isLoggedMealsEmpty(log.meals)) {
-				const deleteResult = await this.deleteOne({ _id: log._id })
-				if (deleteResult.deletedCount === 0) {
-					console.error(`Failed to delete ${log._id} after finding it empty`)
-				}
-			}
+		if (updateResult.modifiedCount === 0) {
+			console.log('No documents were updated, so no need to check for deletion.')
+			return
 		}
 
-		// Return some status or result if needed
+		// Retrieve all logs that were potentially affected by the update
+		const potentiallyEmptyLogs = await this.find(filter).session(session)
+
+		// Detailed logging and deletion
+		for (const log of potentiallyEmptyLogs) {
+			console.log(`Checking log ${log._id} for emptiness.`)
+			if (isLoggedMealsEmpty(log.meals)) {
+				console.log(`Log ${log._id} is empty. Attempting deletion.`)
+				const deleteResult = await this.deleteOne({ _id: log._id }, { session })
+				if (deleteResult.deletedCount === 0) {
+					console.error(`Failed to delete empty log with ID: ${log._id}`)
+				} else {
+					console.log(`Successfully deleted empty log with ID: ${log._id}`)
+				}
+			} else {
+				console.log(`Log ${log._id} is not empty. No deletion needed.`)
+			}
+		}
 	} catch (error) {
 		console.error('Error in updateManyAndDeleteIfEmpty:', error)
 		throw error

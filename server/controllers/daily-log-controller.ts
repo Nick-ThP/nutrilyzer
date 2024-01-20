@@ -1,11 +1,12 @@
 import asyncHandler from 'express-async-handler'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
-import { ExtendedRequest, IDailyLog } from '../../app-types'
+import { ExtendedRequest, IDailyLog, IFoodItem, IMeal } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
 import { HTTP_STATUS } from '../utils/http-messages'
 import { FoodItem } from '../models/food-item-model'
+import { Meal } from '../models/meal-model'
 
 // @desc Get all daily logs
 // @route GET /api/dailyLogs
@@ -24,6 +25,18 @@ export const getAllLogs = asyncHandler(async (req: ExtendedRequest, res) => {
 export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const { date, meals }: Omit<IDailyLog<ObjectId>, 'userId'> = req.body
+
+	const allMealIds = Object.values(meals).flatMap(array => array.map(meal => meal.toString()))
+	const uniqueMealIds = Array.from(new Set(allMealIds)) // Convert Set back to Array
+
+	const mealPromises = uniqueMealIds.map(mealId => Meal.findById(mealId))
+	const foundMeals = await Promise.all(mealPromises)
+
+	foundMeals.forEach((meal, index) => {
+		if (!meal) {
+			throw new AsyncHandlerError(`Meal not found with ID: ${uniqueMealIds[index]}`, HTTP_STATUS.SERVER_ERROR)
+		}
+	})
 
 	// Create objects for the update
 	const filter = { userId, date }
@@ -82,7 +95,11 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
     }
 	])
 
-	async function enrichMealWithFoodItems(meal) {
+	if (!log || !log.length) {
+		throw new AsyncHandlerError('Daily log not found', HTTP_STATUS.NOT_FOUND)
+	}
+
+	async function enrichMealWithFoodItems(meal: IMeal<ObjectId> | IMeal<IFoodItem>) {
 		if (!meal || !meal.foodEntries) {
 			return meal
 		}
@@ -90,7 +107,7 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 		for (const entry of meal.foodEntries) {
 			if (entry.foodItem) {
 				const foodItemDetails = await FoodItem.findById(entry.foodItem)
-				entry.foodItemDetails = foodItemDetails
+				entry.foodItem = foodItemDetails
 			}
 		}
 
@@ -103,10 +120,6 @@ export const getLogDetails = asyncHandler(async (req: ExtendedRequest, res) => {
 				log[0].meals[mealType][i] = await enrichMealWithFoodItems(log[0].meals[mealType][i])
 			}
 		}
-	}
-
-	if (!log || !log.length) {
-		throw new AsyncHandlerError('Daily log not found', HTTP_STATUS.NOT_FOUND)
 	}
 
 	res.status(HTTP_STATUS.OK).json(log[0])
