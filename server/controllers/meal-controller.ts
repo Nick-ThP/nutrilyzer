@@ -120,5 +120,3 @@ export const deleteMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 		session.endSession()
 	}
 })
-
-

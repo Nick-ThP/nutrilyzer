@@ -76,10 +76,10 @@ export interface IDailyLog<T extends Aggregated | ObjectId> {
 	_id?: string
 	date: Date
 	userId: ObjectId
-	meals: Meals<T>
+	meals: IMeals<T>
 }
 
-export type Meals<T> = {
+export type IMeals<T> = {
 	breakfast: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
 	lunch: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]
 	dinner: T extends Aggregated ? IMeal<IFoodItem>[] : ObjectId[]

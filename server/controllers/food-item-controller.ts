@@ -1,13 +1,13 @@
 import asyncHandler from 'express-async-handler'
+import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
-import { ExtendedRequest, IFoodItem, IFoodItemSubmit } from '../../app-types'
+import { ExtendedRequest, IFoodItemSubmit } from '../../app-types'
 import { DailyLog } from '../models/daily-log-model'
 import { FoodItem } from '../models/food-item-model'
 import { Meal } from '../models/meal-model'
 import { AsyncHandlerError } from '../utils/async-handler-error'
-import { HTTP_STATUS } from '../utils/http-messages'
-import { ObjectId } from 'mongodb'
 import { isLoggedMealsEmpty } from '../utils/helper-functions'
+import { HTTP_STATUS } from '../utils/http-messages'
 
 // @desc Get all food items for a user
 // @route GET /api/foodItems
@@ -43,7 +43,7 @@ export const getFoodItemsByIds = asyncHandler(async (req: ExtendedRequest, res) 
 // @access Private
 export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
-	const { name, nutrition }: IFoodItemSubmit  = req.body
+	const { name, nutrition }: IFoodItemSubmit = req.body
 
 	// Create a new food item
 	const newFoodItem = await FoodItem.create({ userId, name, nutrition, isDefault: false })
@@ -56,7 +56,7 @@ export const createFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 })
 
 // @desc Update a food item
-// @route PUT /api/foodItems/:id
+// @route PUT /api/foodItems/:foodItemId
 // @access Private
 export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
@@ -64,7 +64,7 @@ export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 	const { name, nutrition }: IFoodItemSubmit = req.body
 
 	// Check if the food item exists and belongs to the user
-	const updatedFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId}, { name, nutrition }, { new: true })
+	const updatedFoodItem = await FoodItem.findOneAndUpdate({ userId, _id: foodItemId }, { name, nutrition }, { new: true })
 
 	if (!updatedFoodItem) {
 		throw new AsyncHandlerError('Food item not found or does not belong to the user', HTTP_STATUS.NOT_FOUND)
@@ -74,7 +74,7 @@ export const updateFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 })
 
 /// @desc Delete a food item and update related meals and daily logs
-// @route DELETE /api/foodItems/:id
+// @route DELETE /api/foodItems/:foodItemId
 // @access Private
 export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => {
 	const session = await mongoose.startSession()
@@ -133,5 +133,3 @@ export const deleteFoodItem = asyncHandler(async (req: ExtendedRequest, res) => 
 		session.endSession()
 	}
 })
-
-

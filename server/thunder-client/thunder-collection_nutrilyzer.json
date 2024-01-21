@@ -1,0 +1,369 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "nutrilyzer",
+    "dateExported": "2024-01-21T13:17:07.095Z",
+    "version": "1.1",
+    "folders": [
+        {
+            "_id": "7037f099-82a7-419a-9490-d9d61189bf21",
+            "name": "/users",
+            "containerId": "",
+            "created": "2024-01-16T15:39:16.256Z",
+            "sortNum": 20000
+        },
+        {
+            "_id": "3a7c1ec3-3562-48f1-9976-023cd15dadb3",
+            "name": "/dailyLogs",
+            "containerId": "",
+            "created": "2024-01-16T15:46:59.649Z",
+            "sortNum": 40000
+        },
+        {
+            "_id": "b8b0a9ac-2904-4b92-b92f-53261cb7ea23",
+            "name": "/foodItems",
+            "containerId": "",
+            "created": "2024-01-17T20:14:20.729Z",
+            "sortNum": 50000
+        },
+        {
+            "_id": "4401f01e-209c-409b-b08f-58be0d27c37d",
+            "name": "/meals",
+            "containerId": "",
+            "created": "2024-01-17T20:14:28.445Z",
+            "sortNum": 60000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "24ecdc8e-853e-45d7-8d6e-4c60e4dcc915",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "7037f099-82a7-419a-9490-d9d61189bf21",
+            "name": "Register user",
+            "url": "localhost:3050/api/users/register",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-01-16T15:34:24.768Z",
+            "modified": "2024-01-17T18:24:06.990Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"testusername\",\n  \"email\": \"test@email.com\",\n  \"password\": \"testpassword1\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "57834b1a-169e-49ce-b92d-bc71217fe755",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "7037f099-82a7-419a-9490-d9d61189bf21",
+            "name": "Log in",
+            "url": "localhost:3050/api/users/login",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-01-16T15:34:24.769Z",
+            "modified": "2024-01-17T18:24:27.962Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"test@email.com\",\n  \"password\": \"testpassword1\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdF9uaWNrbGFzIiwiX2lkIjoiNjVhNmEzNmRhZjBlZTU0OTc5N2Y2NTZhIn0sImlhdCI6MTcwNTQxOTYyOSwiZXhwIjoxNzA4MDExNjI5fQ.wiGpPWEiPw8U2WvyFBf3qGTq0rUeQr-9C8flzCqe1PI"
+            },
+            "tests": []
+        },
+        {
+            "_id": "ec3f68d7-559b-4bb0-bb16-e89e935e9610",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "7037f099-82a7-419a-9490-d9d61189bf21",
+            "name": "Get current user info",
+            "url": "localhost:3050/api/users/current",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2024-01-16T15:34:24.770Z",
+            "modified": "2024-01-17T22:39:04.279Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTUxNTg2NywiZXhwIjoxNzA4MTA3ODY3fQ.H7CAO3qsvolY7egj0QOSsDpUzWRSzHXXWlMr0m1UjXM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "a821fa41-201e-432e-9a24-b1ea478db161",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "3a7c1ec3-3562-48f1-9976-023cd15dadb3",
+            "name": "Get all logs",
+            "url": "localhost:3050/api/dailyLogs/",
+            "method": "GET",
+            "sortNum": 40000,
+            "created": "2024-01-17T18:27:08.817Z",
+            "modified": "2024-01-18T11:15:37.766Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "31aa874f-eee2-47a6-a3ca-0099fb5b4e53",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "b8b0a9ac-2904-4b92-b92f-53261cb7ea23",
+            "name": "Get all food items",
+            "url": "localhost:3050/api/foodItems",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2024-01-18T11:16:52.656Z",
+            "modified": "2024-01-18T11:16:52.656Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "e398af04-21fb-496d-9c52-23dbf194158b",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "4401f01e-209c-409b-b08f-58be0d27c37d",
+            "name": "Get all meals",
+            "url": "localhost:3050/api/meals",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2024-01-19T15:53:59.379Z",
+            "modified": "2024-01-19T15:53:59.379Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "7a516c50-5f4c-4d76-b207-23f93836a110",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "b8b0a9ac-2904-4b92-b92f-53261cb7ea23",
+            "name": "Get food items by ids",
+            "url": "localhost:3050/api/foodItems?ids=65ad11f2ff4ee685e15825f6,65ad1819cb3b3f24ddba648b",
+            "method": "GET",
+            "sortNum": 60000,
+            "created": "2024-01-18T11:42:06.529Z",
+            "modified": "2024-01-21T13:12:07.509Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "ids",
+                    "value": "65ad11f2ff4ee685e15825f6,65ad1819cb3b3f24ddba648b",
+                    "isPath": false
+                }
+            ],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "b6b98efc-b9b1-4559-a613-5cb122120501",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "b8b0a9ac-2904-4b92-b92f-53261cb7ea23",
+            "name": "Create a food item",
+            "url": "localhost:3050/api/foodItems",
+            "method": "POST",
+            "sortNum": 70000,
+            "created": "2024-01-18T12:33:26.445Z",
+            "modified": "2024-01-21T13:12:19.343Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\": \"Superfood 3\",\n  \"nutrition\": {\n    \"calories\": 134,\n    \"protein\": \"4g\",\n    \"carbs\": \"5g\",\n    \"fat\": \"5g\",\n    \"sodium\": \"4mg\"\n  }\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "a06426f4-b2d0-4b57-bd59-3aee89f3b559",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "3a7c1ec3-3562-48f1-9976-023cd15dadb3",
+            "name": "Update a daily log",
+            "url": "localhost:3050/api/dailyLogs/",
+            "method": "PUT",
+            "sortNum": 70000,
+            "created": "2024-01-19T16:08:03.936Z",
+            "modified": "2024-01-20T22:09:19.742Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"date\": \"01202024\",\n  \"meals\": {\n    \"breakfast\": [\n      \"65ac3a7169e2499546750bd9\"\n    ],\n    \"lunch\": [\n      \n    ],\n    \"dinner\": [\n      \"65ac3a7169e2499546750bd9\"\n    ], \n    \"snacks\": [\n    \n    ]\n  }\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "baf14408-d066-453e-a6bf-bf49ffdd08a5",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "4401f01e-209c-409b-b08f-58be0d27c37d",
+            "name": "Get meals by ids",
+            "url": "localhost:3050/api/meals?ids=65ab05a91bf17a3aa77b5a9f",
+            "method": "GET",
+            "sortNum": 75000,
+            "created": "2024-01-19T16:05:50.929Z",
+            "modified": "2024-01-20T16:29:18.709Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "ids",
+                    "value": "65ab05a91bf17a3aa77b5a9f",
+                    "isPath": false
+                }
+            ],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "015c9e2c-3e70-40b7-9e1a-8dfff66c78d7",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "b8b0a9ac-2904-4b92-b92f-53261cb7ea23",
+            "name": "Update a food item",
+            "url": "localhost:3050/api/foodItems/65ad1833cb3b3f24ddba648e",
+            "method": "PUT",
+            "sortNum": 80000,
+            "created": "2024-01-19T15:24:51.665Z",
+            "modified": "2024-01-21T13:12:49.255Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\": \"Updated superfood\",\n  \"nutrition\": {\n    \"calories\": 234,\n    \"protein\": \"44g\",\n    \"carbs\": \"5g\",\n    \"fat\": \"54g\",\n    \"sodium\": \"4mg\"\n  }\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "03e71eb7-9190-4032-ae1b-4c8fb84dddb6",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "3a7c1ec3-3562-48f1-9976-023cd15dadb3",
+            "name": "Get aggregated log",
+            "url": "localhost:3050/api/dailyLogs/01212024",
+            "method": "GET",
+            "sortNum": 80000,
+            "created": "2024-01-19T16:40:06.026Z",
+            "modified": "2024-01-21T13:15:54.990Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "0f191ff4-fe96-433f-bc6f-b36ead7d5fea",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "b8b0a9ac-2904-4b92-b92f-53261cb7ea23",
+            "name": "Delete food item",
+            "url": "localhost:3050/api/foodItems/65ad18fbcb3b3f24ddba64bc",
+            "method": "DELETE",
+            "sortNum": 90000,
+            "created": "2024-01-19T15:26:55.060Z",
+            "modified": "2024-01-21T13:16:11.836Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "e3d0e574-53d8-4dd2-998b-87fad39f866c",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "4401f01e-209c-409b-b08f-58be0d27c37d",
+            "name": "Create a meal",
+            "url": "localhost:3050/api/meals",
+            "method": "POST",
+            "sortNum": 100000,
+            "created": "2024-01-19T15:52:41.784Z",
+            "modified": "2024-01-21T13:14:21.630Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\": \"Supermeal 1\",\n  \"foodEntries\": [\n    {\n      \"foodItem\": \"65ad11f2ff4ee685e15825f6\",\n      \"grams\": \"257\"\n    },\n    {\n      \"foodItem\": \"65ad1819cb3b3f24ddba648b\",\n      \"grams\": \"532\"\n    }\n  ],\n  \"isSavedInCollection\": true\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "a7833ab9-fdfc-4a03-b9d0-29c76aba6b86",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "4401f01e-209c-409b-b08f-58be0d27c37d",
+            "name": "Update a meal",
+            "url": "localhost:3050/api/meals/65ad18a6cb3b3f24ddba64a0",
+            "method": "PUT",
+            "sortNum": 102500,
+            "created": "2024-01-19T16:01:42.978Z",
+            "modified": "2024-01-21T13:15:11.030Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\": \"Updated supermeal\",\n  \"foodEntries\": [\n    {\n      \"foodItem\": \"65ad11f2ff4ee685e15825f6\",\n      \"grams\": 200\n    }\n  ],\n  \"isSavedInCollection\": true\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        },
+        {
+            "_id": "9df5d8a4-b43b-47b8-b392-b6aa8fcb4992",
+            "colId": "b886915f-273f-419c-bfa3-caadb295c92c",
+            "containerId": "4401f01e-209c-409b-b08f-58be0d27c37d",
+            "name": "Delete a meal",
+            "url": "localhost:3050/api/meals/65ad1926cb3b3f24ddba64d9",
+            "method": "DELETE",
+            "sortNum": 112500,
+            "created": "2024-01-19T16:04:58.733Z",
+            "modified": "2024-01-21T13:16:38.101Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXJuYW1lIiwiX2lkIjoiNjVhODFiNDY0MTFkYTY5MmNhODM2MWU4In0sImlhdCI6MTcwNTU3NjUyNiwiZXhwIjoxNzA4MTY4NTI2fQ.S6C16VZ8bb0vkfMHBEy_UyfvmgeP_nMh8UJN6_xmcrM"
+            },
+            "tests": []
+        }
+    ]
+}
