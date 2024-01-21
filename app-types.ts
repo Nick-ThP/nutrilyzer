@@ -1,7 +1,6 @@
 import { Request } from 'express'
 import { ObjectId } from 'mongodb'
-import mongoose from 'mongoose'
-import { Date, Model, UpdateWriteOpResult } from 'mongoose'
+import { Date, Model } from 'mongoose'
 
 // User related interfaces
 export interface IUser {
@@ -36,7 +35,7 @@ export interface IFoodItem {
 // Food Submission related types
 export type IFoodItemSubmit = Omit<IFoodItem, 'isDefault' | 'hiddenByUsers'>
 
-// Food Item Entry and Meal related interfaces
+// Meal and Food Entry related interfaces
 type FoodTypeUnion = IFoodItem | ObjectId
 
 export interface IFoodItemEntry<T extends FoodTypeUnion> {
@@ -94,14 +93,6 @@ export interface IDailyLogModel extends Model<IDailyLog<ObjectId>> {
 		update?: Record<string, any>,
 		options?: Record<string, any>
 	): Promise<IDailyLog<ObjectId> | null>
-
-	updateManyAndDeleteIfEmpty(
-		filter?: Record<string, any>,
-		update?: Record<string, any>,
-		options?: Record<string, any>,
-		session?: mongoose.mongo.ClientSession,
-		mealIdsToDelete?: ObjectId[]
-	): Promise<UpdateWriteOpResult>
 }
 
 export interface ExtendedRequest extends Request {

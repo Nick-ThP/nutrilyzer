@@ -45,15 +45,6 @@ export const createMeal = asyncHandler(async (req: ExtendedRequest, res) => {
 	const { name, foodEntries, isSavedInCollection }: IMealSubmit<Create> = req.body
 	const visibility = isSavedInCollection ? { hiddenByUsers: [] } : { hiddenByUsers: [userId] }
 
-	const foodItemPromises = foodEntries.map(entry => FoodItem.find({ _id: entry.foodItem }))
-	const foodItems = await Promise.all(foodItemPromises)
-
-	foodItems.forEach((found, index) => {
-		if (!found || found.length === 0) {
-			throw new AsyncHandlerError(`Food item not found for entry at index ${index}`, HTTP_STATUS.SERVER_ERROR)
-		}
-	})
-
 	// Create a new meal
 	const newMeal = await Meal.create({ userId, name, foodEntries, isDefault: false, visibility })
 

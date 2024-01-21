@@ -1,6 +1,9 @@
 import { body, query } from 'express-validator'
+import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
+import { IFoodItemEntry, Meals } from '../../app-types'
 import {
+	areItemsExisting,
 	hasRequiredMealTimes,
 	isMealBeingSavedOrRemoved,
 	isUserPropertyUnique,
@@ -65,7 +68,20 @@ export const mealValidator = [
 	body('foodEntries').isArray({ min: 1 }).withMessage('Food entry must be an non-empty array'),
 	body('foodEntries.*.foodItem').isMongoId().withMessage('Food item must be a valid Mongo ID'),
 	body('foodEntries.*.grams').isNumeric().withMessage('Grams must be a number'),
-	body().custom(isMealBeingSavedOrRemoved)
+	body().custom(isMealBeingSavedOrRemoved),
+	body('foodEntries').custom(async (foodEntries: IFoodItemEntry<ObjectId>[]) => {
+		const foodItemIds = foodEntries.filter(entry => entry.foodItem && entry.foodItem._id).map(entry => entry.foodItem._id)
+
+		if (foodItemIds.length !== foodEntries.length) {
+			throw new Error('Some food items are missing an ID')
+		}
+
+		const uniqueFoodItemIds = Array.from(new Set(foodItemIds))
+		const allFoodItemsExist = await areItemsExisting(uniqueFoodItemIds, 'FoodItem')
+		if (!allFoodItemsExist) {
+			throw new Error('One or more provided food items do not exist')
+		}
+	})
 ]
 
 export const dailyLogValidator = [
@@ -85,7 +101,16 @@ export const dailyLogValidator = [
 	body('meals.breakfast').custom(isValidMealArray),
 	body('meals.lunch').custom(isValidMealArray),
 	body('meals.dinner').custom(isValidMealArray),
-	body('meals.snacks').custom(isValidMealArray)
+	body('meals.snacks').custom(isValidMealArray),
+	body('meals').custom(async (meals: Meals<ObjectId>) => {
+		const allMealIds = Object.values(meals).flatMap(array => array)
+		const uniqueMealIds = Array.from(new Set(allMealIds))
+		const allMealsExist = await areItemsExisting(uniqueMealIds, 'Meal')
+
+		if (!allMealsExist) {
+			throw new Error('One or more meals not found')
+		}
+	})
 ]
 
 export const validateIdsInQueryString = [

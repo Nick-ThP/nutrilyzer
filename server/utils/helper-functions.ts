@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken'
 import { ObjectId } from 'mongodb'
 import { Create, IMealSubmit, INutrition, IUser, Update } from '../../app-types'
+import { FoodItem } from '../models/food-item-model'
+import { Meal } from '../models/meal-model'
 import { User } from '../models/user-model'
 import { AsyncHandlerError } from './async-handler-error'
 import { HTTP_STATUS } from './http-messages'
@@ -46,6 +48,24 @@ export const isUserPropertyUnique = async (key: string, value: string) => {
 		const found = await User.findOne({ [key]: value })
 
 		return !found
+	} catch (error) {
+		throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
+	}
+}
+
+export const areItemsExisting = async (ids: ObjectId[], model: 'FoodItem' | 'Meal') => {
+	try {
+		let foundItems: unknown[]
+
+		if (model === 'FoodItem') {
+			foundItems = await FoodItem.find({ _id: { $in: ids } })
+		} else if (model === 'Meal') {
+			foundItems = await Meal.find({ _id: { $in: ids } })
+		} else {
+			throw new Error('Invalid model type')
+		}
+
+		return foundItems.length === ids.length
 	} catch (error) {
 		throw new AsyncHandlerError('Something went wrong on the server', HTTP_STATUS.SERVER_ERROR)
 	}

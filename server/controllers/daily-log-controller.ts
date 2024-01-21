@@ -26,18 +26,6 @@ export const updateLog = asyncHandler(async (req: ExtendedRequest, res) => {
 	const userId = req.user?._id
 	const { date, meals }: Omit<IDailyLog<ObjectId>, 'userId'> = req.body
 
-	const allMealIds = Object.values(meals).flatMap(array => array.map(meal => meal.toString()))
-	const uniqueMealIds = Array.from(new Set(allMealIds)) // Convert Set back to Array
-
-	const mealPromises = uniqueMealIds.map(mealId => Meal.findById(mealId))
-	const foundMeals = await Promise.all(mealPromises)
-
-	foundMeals.forEach((meal, index) => {
-		if (!meal) {
-			throw new AsyncHandlerError(`Meal not found with ID: ${uniqueMealIds[index]}`, HTTP_STATUS.SERVER_ERROR)
-		}
-	})
-
 	// Create objects for the update
 	const filter = { userId, date }
 	const update = {
